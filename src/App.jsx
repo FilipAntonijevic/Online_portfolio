@@ -60,7 +60,7 @@ function App() {
       );
 
       // Filter out specific projects
-      const excludedProjects = ['kk_project', 'Blokejd-GameJam', 'RBS', '8_David_Bader'];
+      const excludedProjects = ['kk_project', 'Blokejd-GameJam', 'RBS', '8_David_Bader', 'Online_portfolio'];
       const filteredRepos = uniqueRepos
         .filter(repo => !excludedProjects.includes(repo.name))
         .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
