@@ -43,7 +43,7 @@ function ProjectTile({ repo, onDrop, onSelect }) {
     <>
       <div
         ref={tileRef}
-        className={`project-tile ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack') ? 'project-tile-image' : ''}`}
+        className={`project-tile ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack' || repo.name === 'TicTacToe') ? 'project-tile-image' : ''}`}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         onMouseEnter={() => setShowTooltip(true)}
@@ -91,6 +91,12 @@ function ProjectTile({ repo, onDrop, onSelect }) {
             alt={repo.name}
             style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           />
+        ) : repo.name === 'TicTacToe' ? (
+          <img
+            src="/images/TicTacToe.png"
+            alt={repo.name}
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          />
         ) : repo.name === 'chesseption' ? (
           <img 
             src="/images/chesseption.png" 
@@ -123,7 +129,7 @@ function ProjectTile({ repo, onDrop, onSelect }) {
       {clones.map(clone => (
         <div
           key={clone.id}
-          className={`project-tile project-tile-clone dropping ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack') ? 'project-tile-image' : ''}`}
+          className={`project-tile project-tile-clone dropping ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack' || repo.name === 'TicTacToe') ? 'project-tile-image' : ''}`}
           style={{
             position: 'fixed',
             top: clone.rect.top,
@@ -167,6 +173,12 @@ function ProjectTile({ repo, onDrop, onSelect }) {
           ) : repo.name === 'hand_draw_simulator' ? (
             <img 
               src="/images/Hand_draw_simulator.png" 
+              alt={repo.name}
+              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            />
+          ) : repo.name === 'TicTacToe' ? (
+            <img
+              src="/images/TicTacToe.png"
               alt={repo.name}
               style={{ width: '100%', height: '100%', objectFit: 'contain' }}
             />

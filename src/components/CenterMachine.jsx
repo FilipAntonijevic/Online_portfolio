@@ -5,13 +5,9 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
   return (
     <main className="column center-column">
       <div className="vending-machine">
-        {/* Machine frame and display area */}
-        <div className="machine-frame">
-          {/* Projects display area with video screen */}
-          <div className="projects-display" role="region" aria-label="Project tiles">
-            <div className="display-container">
-              {/* Left side: Projects (80%) */}
-              <div className="projects-section">
+          <div className="snack-box">
+                {/* Left side: Projects (snack) */}
+                <div className="projects-section" role="region" aria-label="Project tiles">
                 {loading && (
                   <div className="status-message" role="status" aria-live="polite">
                     Loading projects...
@@ -42,9 +38,33 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                     ))}
                   </div>
                 )}
+
+                </div>
+
+                {/* Box area (chute) will sit below projects inside the snack-box */}
+                {/* chute-area moved down into the snack-box wrapper */}
+
+                <div className={`chute-area ${droppedRepo ? 'active' : ''}`}
+                  onClick={onChuteClick}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === ' ') && droppedRepo) {
+                      e.preventDefault();
+                      onChuteClick();
+                    }
+                  }}
+                  tabIndex={droppedRepo ? 0 : -1}
+                  role={droppedRepo ? 'button' : 'status'}
+                  aria-label={droppedRepo ? `Open ${droppedRepo.name} on GitHub` : 'Drop a project here'}
+                >
+                  <div className="chute-opening"></div>
+                  <div className="chute-label">
+                    {droppedRepo ? droppedRepo.name : 'Drop a project here'}
+                  </div>
+                </div>
+
               </div>
 
-              {/* Right side: Video preview screen (20%) */}
+              {/* Right side: Video preview screen (control area) */}
               <div className="video-screen">
                 <div className="screen-frame">
                   {selectedRepo && showDescription ? (
@@ -140,29 +160,6 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Chute area at the bottom */}
-        <div 
-          className={`chute-area ${droppedRepo ? 'active' : ''}`}
-          onClick={onChuteClick}
-          onKeyDown={(e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && droppedRepo) {
-              e.preventDefault();
-              onChuteClick();
-            }
-          }}
-          tabIndex={droppedRepo ? 0 : -1}
-          role={droppedRepo ? 'button' : 'status'}
-          aria-label={droppedRepo ? `Open ${droppedRepo.name} on GitHub` : 'Drop a project here'}
-        >
-          <div className="chute-opening"></div>
-          <div className="chute-label">
-            {droppedRepo ? droppedRepo.name : 'Drop a project here'}
-          </div>
-        </div>
       </div>
     </main>
   );
