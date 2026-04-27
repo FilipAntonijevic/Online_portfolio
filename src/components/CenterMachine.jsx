@@ -38,16 +38,29 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                   </div>
                 )}
 
-                {!loading && !error && repos.length > 0 && (
+                {!loading && !error && (
                   <div className="project-grid">
-                    {repos.map(repo => (
-                      <ProjectTile
-                        key={repo.id}
-                        repo={repo}
-                        onDrop={onProjectDrop}
-                        onSelect={onProjectSelect}
-                      />
-                    ))}
+                    {(() => {
+                      const SLOTS = 16; // 4 columns x 4 rows
+                      return Array.from({ length: SLOTS }).map((_, i) => {
+                        const repo = repos[i];
+                        if (repo) {
+                          return (
+                            <ProjectTile
+                              key={repo.id}
+                              repo={repo}
+                              onDrop={onProjectDrop}
+                              onSelect={onProjectSelect}
+                            />
+                          );
+                        }
+                        return (
+                          <div key={`placeholder-${i}`} className="project-tile project-tile-placeholder" aria-hidden="true">
+                            <img src="/images/full_spring.png" alt="placeholder" />
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                 )}
 

@@ -17,7 +17,9 @@ function ProjectTile({ repo, onDrop, onSelect }) {
     TicTacToe: 1.6
   };
 
-  const getScale = (name) => (imgScales[name] ?? 1);
+  // Global multiplier to scale all images (0.9 => 90% of original)
+  const GLOBAL_IMAGE_MULTIPLIER = 0.9;
+  const getScale = (name) => ((imgScales[name] ?? 1) * GLOBAL_IMAGE_MULTIPLIER);
 
   const handleClick = () => {
     // Debug: log repo name

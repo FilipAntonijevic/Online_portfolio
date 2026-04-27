@@ -35,6 +35,8 @@
     --chute-padding-right: 1.6rem; /* right horizontal padding for chute */
     /* Row vertical offset base value (adjust this to move rows down) */
     --row-x: 6px;
+    /* Scale for placeholder image (change this one value to resize placeholders) */
+    --placeholder-scale: 0.8;
   }
 
   /* ===================================
@@ -140,7 +142,7 @@
   .vending-machine {
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/Vending_machine.png');
+    background-image: url('/images/Vending_machine_2.jpeg');
     background-size: 120% 100vh; /* restore previous size */
     background-repeat: no-repeat;
     background-position: center top;
@@ -150,7 +152,7 @@
     position: relative;
     min-height: 100vh; /* restore previous min-height */
     /*outline: 2px solid blue; /* Vending machine outline */
-    padding: 3rem 0rem 6.5rem 1.5rem; /* restore original padding */
+    padding: 2.4rem 0rem 6.5rem 1.5rem; /* restore original padding */
     display: flex; /* layout: snack-box + control */
     align-items: stretch;
   }
@@ -368,7 +370,7 @@
   .project-tile {
     width: var(--tile-size);
     height: var(--tile-size);
-    background: var(--color-tile-bg);
+    background: transparent;
     color: var(--color-tile-text);
     border-radius: var(--border-radius);
     display: flex;
@@ -386,7 +388,7 @@
 
   .project-tile:hover,
   .project-tile:focus {
-    background: var(--color-tile-hover);
+    background: transparent;
     transform: translateY(-4px);
     outline: none;
   }
@@ -447,6 +449,22 @@
     pointer-events: none;
     transform: translateX(-50%); /* base centering; JS will add scale */
   }
+
+  /* Placeholder tile shown when no project is present */
+  .project-tile-placeholder img {
+  /* position placeholder like project images: bottom-center anchor */
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%) scale(var(--placeholder-scale));
+  transform-origin: bottom center;
+  max-width: 80%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  display: block;
+}
+
 
   /* Project Tooltip */
   .project-tooltip {
