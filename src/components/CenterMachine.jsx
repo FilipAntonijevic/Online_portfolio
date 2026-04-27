@@ -1,7 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ProjectTile from './ProjectTile';
 
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose }) {
+  const [chutePressed, setChutePressed] = useState(false);
+
+  useEffect(() => {
+    // reset pressed state when droppedRepo changes so animation can run again
+    setChutePressed(false);
+  }, [droppedRepo]);
+
+  const handleChuteClick = (e) => {
+    setChutePressed(true);
+    if (onChuteClick) onChuteClick(e);
+  };
+
   return (
     <main className="column center-column">
       <div className="vending-machine">
@@ -44,12 +56,14 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                 {/* Box area (chute) will sit below projects inside the snack-box */}
                 {/* chute-area moved down into the snack-box wrapper */}
 
-                <div className={`chute-area ${droppedRepo ? 'active' : ''}`}
-                  onClick={onChuteClick}
+                <div
+                  className={`chute-area ${droppedRepo ? 'active' : ''} ${chutePressed ? 'pressed' : ''}`}
+                  onClick={handleChuteClick}
                   onKeyDown={(e) => {
                     if ((e.key === 'Enter' || e.key === ' ') && droppedRepo) {
                       e.preventDefault();
-                      onChuteClick();
+                      setChutePressed(true);
+                      if (onChuteClick) onChuteClick(e);
                     }
                   }}
                   tabIndex={droppedRepo ? 0 : -1}
@@ -57,9 +71,6 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                   aria-label={droppedRepo ? `Open ${droppedRepo.name} on GitHub` : 'Drop a project here'}
                 >
                   <div className="chute-opening"></div>
-                  <div className="chute-label">
-                    {droppedRepo ? droppedRepo.name : 'Drop a project here'}
-                  </div>
                 </div>
 
               </div>

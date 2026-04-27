@@ -27,11 +27,14 @@
     --machine-max-width: 900px;
     --border-radius: 8px;
     --tile-size: clamp(60px, 8vw, 103px);
-    --tile-gap: 0px;
+    --tile-gap: 1rem;
+    --row-gap: 1.1rem;
     /* Chute layout controls */
     --chute-width: 93%; /* width of the chute area relative to its container */
     --chute-padding-left: 1.4rem;  /* left horizontal padding for chute */
     --chute-padding-right: 1.6rem; /* right horizontal padding for chute */
+    /* Row vertical offset base value (adjust this to move rows down) */
+    --row-x: 6px;
   }
 
   /* ===================================
@@ -146,7 +149,7 @@
     box-shadow: none;
     position: relative;
     min-height: 100vh; /* restore previous min-height */
-    outline: 2px solid blue; /* Vending machine outline */
+    /*outline: 2px solid blue; /* Vending machine outline */
     padding: 3rem 0rem 6.5rem 1.5rem; /* restore original padding */
     display: flex; /* layout: snack-box + control */
     align-items: stretch;
@@ -157,9 +160,9 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    border: 2px solid red; /* Snack (glass) border */
+    /*border: 2px solid red; /* Snack (glass) border */
     border-radius: var(--border-radius);
-    padding: var(--spacing-sm);
+    padding: 3.52rem 1.5rem 1rem 1rem; 
     flex: 1 1 auto; /* grow to fill available space inside snack-box */
     box-sizing: border-box;
     background: transparent;
@@ -172,7 +175,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-sm);
-    border: 2px solid gold; /* Snack-box wrapper outline (yellow) */
+    /*border: 2px solid gold; /* Snack-box wrapper outline (yellow) */
     border-radius: var(--border-radius);
     padding: 1rem 1.5rem 1rem 1rem; /* restore original padding */
     box-sizing: border-box;
@@ -182,8 +185,8 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    column-gap: var(--tile-gap);
-    row-gap: var(--tile-gap);
+      column-gap: var(--tile-gap);
+      row-gap: var(--row-gap);
     justify-content: center;
     align-content: end;
     align-items: end;
@@ -201,7 +204,7 @@
     align-items: flex-start;
     justify-content: flex-end;
     padding: 2rem 0 0 0;
-    outline: 2px solid green; /* Control Compartment Outline */
+    /*outline: 2px solid green; /* Control Compartment Outline */
     box-sizing: border-box;
     background: transparent;
   }
@@ -417,7 +420,9 @@
     background: transparent;
     box-shadow: none;
     border: none;
-    transform: scale(1.32);
+    /* use the tile as a positioned anchor for the absolutely-positioned image */
+    position: relative;
+    display: block;
   }
 
   .project-tile.project-tile-image:hover,
@@ -428,9 +433,19 @@
   }
 
   .project-tile.project-tile-image img {
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    left: 50%;
+    bottom: calc(6px + var(--row-x)); /* base bottom + row offset (overridden per-row below) */
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
     object-fit: contain;
+    transform-origin: bottom center;
+    transition: transform 0.18s ease;
+    display: block;
+    pointer-events: none;
+    transform: translateX(-50%); /* base centering; JS will add scale */
   }
 
   /* Project Tooltip */
@@ -488,15 +503,19 @@
     Chute Area
     =================================== */
   .chute-area {
-     flex: 0 0 15%;
-     max-height: 15%;
-     min-height: 0;
-     border: 2px solid rgb(153, 51, 153);
+      flex: 0 0 14%;
+      /* move visually: 1px right, 4px up (adjusted: move 2px further up) */
+       transform: translate(-5px, -5px);
+      min-height: 0;
+     /*border: 2px solid rgb(153, 51, 153); /* Chute outline (purple) */
      border-radius: 6px;
-     background: transparent;
-     width: var(--chute-width); /* control overall width */
+        overflow: hidden; /* clip shine inside the chute box */
+      position: relative; /* needed for shine pseudo-element */
+      /* slightly reduce overall width and height */
+       width: calc(var(--chute-width) - 10px); /* control overall width */
+      max-height: calc(15% - 4px);
      margin: 0 auto; /* center horizontally inside parent */
-     padding: var(--spacing-sm) var(--chute-padding-inline); /* vertical and horizontal padding */
+      padding: var(--spacing-sm) var(--chute-padding-inline); /* vertical and horizontal padding */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -507,11 +526,15 @@
 
   .chute-area.active {
     cursor: pointer;
-    animation: chuteGlow 2s ease-in-out infinite;
-  }
+    /* keep subtle glow + sweep effect (no hover color)
+       animation for inner glow retained */
+     animation: chuteGlow 2s ease-in-out infinite;
+    background: transparent;
+  } 
 
+  /* remove hover background so chute remains transparent */
   .chute-area.active:hover {
-    background: #2a2a2a;
+    background: transparent;
   }
 
   .chute-area.active:focus {
@@ -519,35 +542,68 @@
     outline-offset: -3px;
   }
 
-  @keyframes chuteGlow {
-    0%, 100% {
-      box-shadow: inset 0 0 20px rgba(74, 144, 226, 0.3);
+    @keyframes chuteGlow {
+      0%, 100% {
+        box-shadow: inset 0 0 20px rgba(74, 144, 226, 0.3);
+      }
+      50% {
+        box-shadow: inset 0 0 30px rgba(74, 144, 226, 0.6);
+      }
     }
-    50% {
-      box-shadow: inset 0 0 30px rgba(74, 144, 226, 0.6);
+
+    /* When chute is pressed, disable all light animations */
+    .chute-area.pressed,
+    .chute-area.pressed::before,
+    .chute-area.pressed::after {
+      animation: none !important;
+      box-shadow: none !important;
+      opacity: 0 !important;
+      transition: none !important;
     }
+
+  @keyframes chutePulse {
+    0% { opacity: 0; transform: scale(1); }
+    30% { opacity: 1; transform: scale(1.02); }
+    100% { opacity: 0; transform: scale(1.04); }
   }
 
   .chute-opening {
-    width: 200px;
-    height: 60px;
-    background: linear-gradient(to bottom, #111 0%, #000 100%);
-    border: 2px solid #333;
-    border-radius: 8px 8px 0 0;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+    /* hide the static black slot rectangle - use shine instead */
+    display: none;
   }
 
-  .chute-label {
-    color: var(--color-tile-text);
-    font-size: 0.9rem;
-    font-weight: 500;
-    text-align: center;
-    opacity: 0.8;
+  /* Hide the textual label entirely (we'll use a shine instead) */
+  .chute-area .chute-label {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
   }
 
-  .chute-area.active .chute-label {
+  /* Sweep/shine effect when active (intensified) */
+  .chute-area.active::before {
+    content: '';
+    position: absolute;
+    left: -50%;
+    top: -10%;
+    height: 140%;
+    width: 50%;
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.95) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-18deg) translateX(-100%);
+    pointer-events: none;
+    animation: chuteShine 1.5s ease-in-out infinite;
+    border-radius: 8px;
+    mix-blend-mode: screen;
+    filter: blur(8px) brightness(1.8);
+    box-shadow: 0 0 40px rgba(255,255,255,0.36);
     opacity: 1;
-    font-weight: 600;
+  }
+  @keyframes chuteShine {
+    0% { transform: skewX(-18deg) translateX(-100%); opacity: 0; }
+    20% { opacity: 1; }
+    70% { opacity: 0.9; }
+    100% { transform: skewX(-18deg) translateX(360%); opacity: 0; }
   }
 
   /* ===================================

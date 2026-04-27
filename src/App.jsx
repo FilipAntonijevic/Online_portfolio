@@ -81,7 +81,9 @@ function App() {
   }
 
   const handleProjectDrop = (repo) => {
-    setDroppedRepo(repo);
+    // Always create a new droppedRepo object so repeated drops of the same project
+    // will produce a new reference and trigger downstream effects (animations).
+    setDroppedRepo({ ...repo, _droppedAt: Date.now() });
     // Keep the repo in the list (infinite supply)
   };
 

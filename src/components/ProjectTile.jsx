@@ -4,6 +4,20 @@ function ProjectTile({ repo, onDrop, onSelect }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [clones, setClones] = useState([]);
   const tileRef = useRef(null);
+  
+  // Per-image scale overrides (e.g. reduce Tavern_Tower by 10% -> 0.9)
+  // Use keys that exactly match `repo.name` values used below
+  const imgScales = {
+    Tavern_Tower: 1.1,
+    hand_draw_simulator: 1.2,
+    'Grafika-projekat': 1.1, 
+    Optimal_block_packing: 1.1, 
+    Mastermind_best_starting_move_proof: 1.3,
+    score_sheet: 1,
+    TicTacToe: 1.6
+  };
+
+  const getScale = (name) => (imgScales[name] ?? 1);
 
   const handleClick = () => {
     // Debug: log repo name
@@ -59,61 +73,61 @@ function ProjectTile({ repo, onDrop, onSelect }) {
           <img 
             src="/images/Mammoth_island.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'Tavern_Tower' ? (
           <img 
             src="/images/Tavern_tower.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'Optimal_block_packing' ? (
           <img 
             src="/images/Block_packing.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'Mastermind_best_starting_move_proof' ? (
           <img 
             src="/images/Mastermind_proof.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'score_sheet' ? (
           <img 
             src="/images/Score_sheet.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'hand_draw_simulator' ? (
           <img 
             src="/images/Hand_draw_simulator.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'TicTacToe' ? (
           <img
-            src="/images/TicTacToe.png"
+            src="/images/TicTacToe2.png"
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'chesseption' ? (
           <img 
             src="/images/chesseption.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'fun_elections' ? (
           <img 
             src="/images/Fun_elections.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : repo.name === 'lauz_hack' ? (
           <img 
             src="/images/Patent_wizard.png" 
             alt={repo.name}
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
         ) : (
           <>
@@ -123,7 +137,8 @@ function ProjectTile({ repo, onDrop, onSelect }) {
             <span className="star-count" aria-label={`${repo.stargazers_count} stars`}>
               ⭐ {repo.stargazers_count}
             </span>
-          )}\n        </>
+          )}
+        </>
         )}
       </div>      {/* Render clones that will animate and drop */}
       {clones.map(clone => (
@@ -144,61 +159,61 @@ function ProjectTile({ repo, onDrop, onSelect }) {
             <img 
               src="/images/Mammoth_island.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'Tavern_Tower' ? (
             <img 
               src="/images/Tavern_tower.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'Optimal_block_packing' ? (
             <img 
               src="/images/Block_packing.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'Mastermind_best_starting_move_proof' ? (
             <img 
               src="/images/Mastermind_proof.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'score_sheet' ? (
             <img 
               src="/images/Score_sheet.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'hand_draw_simulator' ? (
             <img 
               src="/images/Hand_draw_simulator.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'TicTacToe' ? (
             <img
               src="/images/TicTacToe.png"
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'chesseption' ? (
             <img 
               src="/images/chesseption.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'fun_elections' ? (
             <img 
               src="/images/Fun_elections.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : repo.name === 'lauz_hack' ? (
             <img 
               src="/images/Patent_wizard.png" 
               alt={repo.name}
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
           ) : (
             <>
