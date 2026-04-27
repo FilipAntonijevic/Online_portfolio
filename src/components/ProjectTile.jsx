@@ -17,9 +17,7 @@ function ProjectTile({ repo, onDrop, onSelect }) {
     TicTacToe: 1.6
   };
 
-  // Global multiplier to scale all images (0.9 => 90% of original)
-  const GLOBAL_IMAGE_MULTIPLIER = 0.9;
-  const getScale = (name) => ((imgScales[name] ?? 1) * GLOBAL_IMAGE_MULTIPLIER);
+  const getScale = (name) => (imgScales[name] ?? 1);
 
   const handleClick = () => {
     // Debug: log repo name
@@ -113,31 +111,13 @@ function ProjectTile({ repo, onDrop, onSelect }) {
             alt={repo.name}
             style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
-        ) : repo.name === 'chesseption' ? (
-          <img 
-            src="/images/chesseption.png" 
-            alt={repo.name}
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
-          />
-        ) : repo.name === 'fun_elections' ? (
-          <img 
-            src="/images/Fun_elections.png" 
-            alt={repo.name}
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
-          />
-        ) : repo.name === 'lauz_hack' ? (
-          <img 
-            src="/images/Patent_wizard.png" 
-            alt={repo.name}
-            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
-          />
         ) : (
           <>
             <span className="project-name">{repo.name}</span>
             
             {repo.stargazers_count > 0 && (
             <span className="star-count" aria-label={`${repo.stargazers_count} stars`}>
-              ⭐ {repo.stargazers_count}
+              {repo.stargazers_count}
             </span>
           )}
         </>
@@ -199,30 +179,12 @@ function ProjectTile({ repo, onDrop, onSelect }) {
               alt={repo.name}
               style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
             />
-          ) : repo.name === 'chesseption' ? (
-            <img 
-              src="/images/chesseption.png" 
-              alt={repo.name}
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
-            />
-          ) : repo.name === 'fun_elections' ? (
-            <img 
-              src="/images/Fun_elections.png" 
-              alt={repo.name}
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
-            />
-          ) : repo.name === 'lauz_hack' ? (
-            <img 
-              src="/images/Patent_wizard.png" 
-              alt={repo.name}
-              style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `scale(${getScale(repo.name)})`, transformOrigin: 'bottom center' }}
-            />
-          ) : (
+          ): (
             <>
               <span className="project-name">{repo.name}</span>
               {repo.stargazers_count > 0 && (
                 <span className="star-count" aria-label={`${repo.stargazers_count} stars`}>
-                  ⭐ {repo.stargazers_count}
+                  {repo.stargazers_count}
                 </span>
               )}
             </>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ProjectTile from './ProjectTile';
+import Spring from './Spring';
+import SnackTile from './SnackTile';
 
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose }) {
   const [chutePressed, setChutePressed] = useState(false);
@@ -14,57 +16,46 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
     if (onChuteClick) onChuteClick(e);
   };
 
+  // Helper function for rendering tiles
+  function renderSnackTile(repo, i) {
+    return (
+      <SnackTile
+        key={repo ? repo.id : `placeholder-${i}`}
+        repo={repo}
+        style={{ position: 'relative' }}
+        onProjectDrop={onProjectDrop}
+        onProjectSelect={onProjectSelect}
+      />
+    );
+  }
+
   return (
     <main className="column center-column">
       <div className="vending-machine">
-          <div className="snack-box">
-                {/* Left side: Projects (snack) */}
-                <div className="projects-section" role="region" aria-label="Project tiles">
-                {loading && (
-                  <div className="status-message" role="status" aria-live="polite">
-                    Loading projects...
-                  </div>
-                )}
-
-                {error && (
-                  <div className="status-message error" role="alert">
-                    Error loading projects: {error}
-                  </div>
-                )}
-
-                {!loading && !error && repos.length === 0 && (
-                  <div className="status-message">
-                    No projects found on GitHub.
-                  </div>
-                )}
-
-                {!loading && !error && (
-                  <div className="project-grid">
-                    {(() => {
-                      const SLOTS = 16; // 4 columns x 4 rows
-                      return Array.from({ length: SLOTS }).map((_, i) => {
-                        const repo = repos[i];
-                        if (repo) {
-                          return (
-                            <ProjectTile
-                              key={repo.id}
-                              repo={repo}
-                              onDrop={onProjectDrop}
-                              onSelect={onProjectSelect}
-                            />
-                          );
-                        }
-                        return (
-                          <div key={`placeholder-${i}`} className="project-tile project-tile-placeholder" aria-hidden="true">
-                            <img src="/images/full_spring.png" alt="placeholder" />
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                )}
-
-                </div>
+        <div className="snack-box">
+          {/* Left side: Projects (snack) */}
+          <div className="projects-section" role="region" aria-label="Project tiles">
+            {loading && (
+              <div className="status-message" role="status" aria-live="polite">
+                Loading projects...
+              </div>
+            )}
+            {error && (
+              <div className="status-message error" role="alert">
+                Error loading projects: {error}
+              </div>
+            )}
+            {!loading && !error && repos.length === 0 && (
+              <div className="status-message">
+                No projects found on GitHub.
+              </div>
+            )}
+            {!loading && !error && (
+              <div className="project-grid">
+                {Array.from({ length: 16 }).map((_, i) => renderSnackTile(repos[i], i))}
+              </div>
+            )}
+          </div>
 
                 {/* Box area (chute) will sit below projects inside the snack-box */}
                 {/* chute-area moved down into the snack-box wrapper */}
@@ -185,6 +176,13 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                 </div>
               </div>
       </div>
+      {/* Single centered Spring instance (one number `SPRING_SCALE` controls its size) */}
+      <Spring
+        repo={null}
+        onSelect={onProjectSelect}
+        scale={1.0} /* change this number to resize the central Spring */
+        style={{ position: 'absolute', left: '50%', top: '50%', zIndex: 50, pointerEvents: 'auto' }}
+      />
     </main>
   );
 }

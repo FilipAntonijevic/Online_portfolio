@@ -1,4 +1,4 @@
-  /* ===================================
+/* ===================================
     CSS Variables - Customize colors and spacing here
     =================================== */
   :root {
@@ -378,7 +378,7 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: none; /* disable hover animations */
     position: relative;
     overflow: visible;
     padding: var(--spacing-sm);
@@ -389,7 +389,7 @@
   .project-tile:hover,
   .project-tile:focus {
     background: transparent;
-    transform: translateY(-4px);
+    transform: none; /* no lift on hover */
     outline: none;
   }
 
@@ -431,7 +431,7 @@
   .project-tile.project-tile-image:focus {
     background: transparent;
     box-shadow: none;
-    transform: scale(1.32) translateY(-4px);
+    transform: none; /* disable image-tile hover transform */
   }
 
   .project-tile.project-tile-image img {
@@ -444,10 +444,11 @@
     max-height: 100%;
     object-fit: contain;
     transform-origin: bottom center;
-    transition: transform 0.18s ease;
+    transition: none; /* disable image transform transitions */
     display: block;
     pointer-events: none;
-    transform: translateX(-50%); /* base centering; JS will add scale */
+    transform: translate(-50%,-50%) scale(var(--spring-scale, 0.9)) rotate(var(--spring-rotate, 0deg)); /* center, scale, rotate */
+    transform-origin: center center;
   }
 
   /* Placeholder tile shown when no project is present */
@@ -764,4 +765,13 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+  }
+
+  .snack-tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
