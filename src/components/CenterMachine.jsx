@@ -102,9 +102,20 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                         {selectedRepo.description || 'No description available'}
                       </p>
                       <div className="loading-bar-container">
-                        {[...Array(14)].map((_, i) => (
-                          <div key={`${selectedRepo.id}-${i}`} className="loading-block" style={{ animationDelay: `${i * 0.4286}s` }}></div>
-                        ))}
+                        {(() => {
+                          let desc = selectedRepo?.description || "No description available.";
+                          let len = desc.length;
+                          if (len > 200) len = 200;
+                          const minMs = 2000;
+                          const maxMs = 8000;
+                          const duration = Math.round(minMs + (maxMs - minMs) * (len / 200));
+                          const durationSec = duration / 1000;
+                          const blockCount = 14;
+                          const fragment = durationSec / blockCount;
+                          return [...Array(blockCount)].map((_, i) => (
+                            <div key={`${selectedRepo.id}-${i}`} className="loading-block" style={{ animationDelay: `${i * fragment}s` }}></div>
+                          ));
+                        })()}
                       </div>
                     </div>
                   ) : selectedRepo && selectedRepo.name === 'Grafika-projekat' ? (

@@ -92,14 +92,22 @@ function App() {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     setSelectedRepo(repo);
     setShowDescription(true);
-    
-    // After 6 seconds, hide description and show video
+
+    // Prilagodi trajanje na osnovu broja karaktera u opisu
+    let desc = repo?.description || "No description available.";
+    let len = desc.length;
+    if (len > 200) len = 200;
+    // Linearno: 0 char -> 2s, 200 char -> 8s
+    const minMs = 2000;
+    const maxMs = 8000;
+    const duration = Math.round(minMs + (maxMs - minMs) * (len / 200));
+
     timeoutRef.current = setTimeout(() => {
       setShowDescription(false);
-    }, 6000);
+    }, duration);
   };
 
   const handleChuteClick = () => {
