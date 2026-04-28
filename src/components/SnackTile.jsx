@@ -1,3 +1,4 @@
+const BG_ROTATE_DURATION = 1250;
 
 import React, { useRef, useState } from 'react';
 import Spring from './Spring';
@@ -5,11 +6,14 @@ import ProjectTile from './ProjectTile';
 
 function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
   const [project, setProject] = useState(null);
+  const [bgRotation, setBgRotation] = useState(0);
   const spring = useRef(null);
   const projectTileRef = useRef(null);
   const overlayTileRef = useRef(null);
 
   const handleProjectClick = async (...args) => {
+    // Animiraj rotaciju background slike
+    setBgRotation(r => r - 360);
     // 1. Pusti video odmah
     if (onProjectSelect) onProjectSelect(repo);
     // 2. Scale ProjectTile i overlay
@@ -60,13 +64,14 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
       onClick={handleProjectClick}
     >
       <img
-        src="/images/full_spring.png"
+        src="/images/full_spring_2.png"
         alt="full spring background"
         style={{
           position: 'absolute',
           left: '50%',
           top: '50%',
-          transform: 'translate(-50%, -50%) scale(0.8)',
+          transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
+          transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
           objectFit: 'contain',
           zIndex: 0,
           pointerEvents: 'none',

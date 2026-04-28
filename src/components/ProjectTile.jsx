@@ -1,6 +1,7 @@
 
 // Animation durations (in ms)
 const SCALE_UP_DURATION = 300;
+const CLONE_TILT_DURATION = 200;
 const CLONE_SCALE_DURATION = 500;
 const FALL_ANIMATION_DURATION = 400;
 
@@ -18,10 +19,10 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
         if (tileRef.current) {
           const rect = tileRef.current.getBoundingClientRect();
           const cloneId = Date.now();
-          setClones([{ id: cloneId, rect, scale: 1.03, z: 10, dropping: false, dropY: null, rotation: 2 }]);
+          setClones([{ id: cloneId, rect, scale: 1.03, z: 10, dropping: false, dropY: null, rotation: 0 }]);
           // Animiraj scale klona do 1.08 u CLONE_SCALE_DURATION
-          // rotiraj klona udesno za 5 stepeni
           let start = null;
+          // Animacija skaliranja (paralelno sa rotacijom)
           function animateScale(ts) {
             if (!start) start = ts;
             const elapsed = ts - start;
@@ -46,6 +47,11 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
             }
           }
           requestAnimationFrame(animateScale);
+
+          // Animacija rotacije (nakon CLONE_TILT_DURATION)
+          setTimeout(() => {
+            setClones(prev => prev.map(c => c.id === cloneId ? { ...c, rotation: 4 } : c));
+          }, CLONE_TILT_DURATION);
         }
       }, SCALE_UP_DURATION);
     },
@@ -156,7 +162,9 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
               pointerEvents: 'none',
               zIndex: clone.z || 1000,
               transform: `scale(${clone.scale || 1}) rotate(${clone.rotation || 0}deg)`,
-              transition: clone.dropping ? `top ${FALL_ANIMATION_DURATION}ms, transform ${FALL_ANIMATION_DURATION}ms` : `transform ${CLONE_SCALE_DURATION}ms`,
+              transition: clone.dropping
+                ? `top ${FALL_ANIMATION_DURATION}ms, transform ${FALL_ANIMATION_DURATION}ms`
+                : `transform ${CLONE_SCALE_DURATION}ms, transform ${CLONE_TILT_DURATION}ms`,
             }}
           >
             {repo.name === 'Grafika-projekat' ? (
