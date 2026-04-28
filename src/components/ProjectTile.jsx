@@ -3,9 +3,10 @@
 const SCALE_UP_DURATION = 300;
 const CLONE_TILT_DURATION = 200;
 const CLONE_SCALE_DURATION = 500;
-const FALL_ANIMATION_DURATION = 400;
+const FALL_ANIMATION_DURATION = 11700;
 
 import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
+import { imageRepos } from '../includedProjects';
 
 const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, style, overlay }, ref) {
   const [scale, setScale] = useState(1);
@@ -60,6 +61,8 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
   const [clones, setClones] = useState([]);
   const tileRef = useRef(null);
   
+
+
   // Per-image scale overrides (e.g. reduce Tavern_Tower by 10% -> 0.9)
   // Use keys that exactly match `repo.name` values used below
   const imgScales = {
@@ -88,7 +91,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
     <>
       <div
         ref={tileRef}
-        className={`project-tile ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack' || repo.name === 'TicTacToe') ? 'project-tile-image' : ''}`}
+        className={`project-tile ${imageRepos.has(repo.name) ? 'project-tile-image' : ''}`}
         style={mergedDivStyle}
       >
         {repo.name === 'Grafika-projekat' ? (
@@ -151,18 +154,18 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
         return (
           <div
             key={clone.id}
-            className={`project-tile project-tile-clone${clone.dropping ? ' dropping' : ''} ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack' || repo.name === 'TicTacToe') ? 'project-tile-image' : ''}`}
-            style={{
+            className={`project-tile project-tile-clone${clone.dropping ? ' dropping' : ''} ${imageRepos.has(repo.name) ? 'project-tile-image' : ''}`}
+              style={{
               position: 'fixed',
-              top: clone.dropping ? clone.rect.top + targetY : clone.rect.top,
+              top: clone.rect.top,
               left: clone.rect.left,
               width: clone.rect.width,
               height: clone.rect.height,
               pointerEvents: 'none',
-              zIndex: clone.z || 1000,
-              transform: `scale(${clone.scale || 1}) rotate(${clone.rotation || 0}deg)`,
+              zIndex: (clone.z ?? 0) + 10,
+              transform: `translateY(${clone.dropping ? targetY : 0}px) scale(${clone.scale || 1}) rotate(${clone.rotation || 0}deg)`,
               transition: clone.dropping
-                ? `top ${FALL_ANIMATION_DURATION}ms, transform ${FALL_ANIMATION_DURATION}ms`
+                ? `transform ${FALL_ANIMATION_DURATION}ms linear`
                 : `transform ${CLONE_SCALE_DURATION}ms, transform ${CLONE_TILT_DURATION}ms`,
             }}
           >

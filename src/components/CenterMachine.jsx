@@ -83,6 +83,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       if (onChuteClick) onChuteClick(e);
                     }
                   }}
+                  style={{ zIndex: 10000 }}
                   tabIndex={droppedRepo ? 0 : -1}
                   role={droppedRepo ? 'button' : 'status'}
                   aria-label={droppedRepo ? `Open ${droppedRepo.name} on GitHub` : 'Drop a project here'}

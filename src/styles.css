@@ -33,7 +33,7 @@
     --border-radius: 8px;
     --tile-size: clamp(60px, 8vw, 103px);
     --tile-gap: 1rem;
-    --row-gap: 1.1rem;
+    --row-gap: calc(1.1rem + 1px);
     /* Chute layout controls */
     --chute-width: 93%; /* width of the chute area relative to its container */
     --chute-padding-left: 1.4rem;  /* left horizontal padding for chute */
@@ -369,8 +369,8 @@
   }
 
   .close-video:focus-visible {
-    outline: 2px solid var(--color-chute-glow);
-    outline-offset: 2px;
+    /*outline: 2px solid var(--color-chute-glow);*/
+    outline-offset: 1px;
   }
 
   /* Status Messages */
