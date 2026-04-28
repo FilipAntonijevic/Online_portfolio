@@ -11,30 +11,46 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
         src="/images/full_spring.png"
         alt="full spring background"
         style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%) scale(0.8)',
-        objectFit: 'contain',
-        zIndex: 0,
-        pointerEvents: 'none',
-        userSelect: 'none'
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%) scale(0.8)',
+          objectFit: 'contain',
+          zIndex: 0,
+          pointerEvents: 'none',
+          userSelect: 'none'
         }}
       />
-      {repo ? (
-        <>
-          <ProjectTile
-            repo={repo}
-            onDrop={onProjectDrop}
-            onSelect={onProjectSelect}
+      
+    {repo && (
+      <>
+        <ProjectTile
+          repo={repo}
+          onDrop={onProjectDrop}
+          onSelect={onProjectSelect}
+          style={{ zIndex: 2 }}
+        />
+
+        <ProjectTile
+          repo={repo}
+          onDrop={onProjectDrop}
+          onSelect={onProjectSelect}
+          style={{
+            zIndex: 4,
+            clipPath: 'inset(50% 0 0 0)'
+          }}
+
           />
-        </>
-      ) : null}
+
+      </>
+     )}
+
       <Spring
-            repo={repo}
-            onDrop={onProjectDrop}
-            onSelect={onProjectSelect}
-    />
+        repo={repo}
+        onDrop={onProjectDrop}
+        onSelect={onProjectSelect}
+        style={{ zIndex: 3}}
+      />
     </div>
   );
 }

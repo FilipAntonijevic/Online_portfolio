@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 
-function ProjectTile({ repo, onDrop, onSelect }) {
+function ProjectTile({ repo, onDrop, onSelect, style }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const [clones, setClones] = useState([]);
   const tileRef = useRef(null);
@@ -9,11 +9,11 @@ function ProjectTile({ repo, onDrop, onSelect }) {
   // Use keys that exactly match `repo.name` values used below
   const imgScales = {
     Tavern_Tower: 1.1,
-    hand_draw_simulator: 1.2,
+    hand_draw_simulator: 1.1,
     'Grafika-projekat': 1.1, 
     Optimal_block_packing: 1.1, 
     Mastermind_best_starting_move_proof: 1.3,
-    score_sheet: 1,
+    score_sheet: 1.3,
     TicTacToe: 1.6
   };
 
@@ -53,11 +53,16 @@ function ProjectTile({ repo, onDrop, onSelect }) {
     }
   };
 
+  // Merge default style with incoming style prop
+  const defaultDivStyle = { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' };
+  const mergedDivStyle = { ...defaultDivStyle, ...style };
+
   return (
     <>
       <div
         ref={tileRef}
         className={`project-tile ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack' || repo.name === 'TicTacToe') ? 'project-tile-image' : ''}`}
+        style={mergedDivStyle}
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         onMouseEnter={() => setShowTooltip(true)}

@@ -46,7 +46,8 @@ function Spring({ repo, onSelect, style, scale = 0.8, rotation = -105, image }) 
               position: 'absolute',
               left: '50%',
               top: '50%',
-              pointerEvents: 'auto'
+              pointerEvents: 'auto',
+              marginLeft: '-10px' /* this moves spring left/right*/
             }}
           />
       </div>
