@@ -1,3 +1,8 @@
+/* Onemogući selektovanje i drag svih slika na sajtu */
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+}
 @media (min-width: 1025px) {
   body {
     overflow-y: hidden;

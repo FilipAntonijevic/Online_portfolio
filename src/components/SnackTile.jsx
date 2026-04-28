@@ -1,17 +1,23 @@
 const BG_ROTATE_DURATION = 1000;
+const TILE_CLICK_TIMEOUT = 1100;
 
 import React, { useRef, useState } from 'react';
 import Spring from './Spring';
 import ProjectTile from './ProjectTile';
 
+
 function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
   const [project, setProject] = useState(null);
   const [bgRotation, setBgRotation] = useState(0);
+  const [lastClicked, setLastClicked] = useState(0);
   const spring = useRef(null);
   const projectTileRef = useRef(null);
   const overlayTileRef = useRef(null);
 
   const handleProjectClick = async (...args) => {
+    const now = Date.now();
+    if (now - lastClicked < TILE_CLICK_TIMEOUT) return;
+    setLastClicked(now);
     // Animiraj rotaciju background slike
     setBgRotation(r => r - 360);
     // 1. Pusti video odmah
