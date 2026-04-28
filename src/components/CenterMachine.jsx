@@ -5,6 +5,16 @@ import SnackTile from './SnackTile';
 
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose }) {
   const [chutePressed, setChutePressed] = useState(false);
+  const [dropTargetY, setDropTargetY] = useState(window.innerHeight * 0.9);
+
+  useEffect(() => {
+    function updateDropTargetY() {
+      setDropTargetY(window.innerHeight * 0.9);
+    }
+    updateDropTargetY();
+    window.addEventListener('resize', updateDropTargetY);
+    return () => window.removeEventListener('resize', updateDropTargetY);
+  }, []);
 
   useEffect(() => {
     // reset pressed state when droppedRepo changes so animation can run again
@@ -25,6 +35,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
         style={{ position: 'relative' }}
         onProjectDrop={onProjectDrop}
         onProjectSelect={onProjectSelect}
+        dropTargetY={dropTargetY}
       />
     );
   }

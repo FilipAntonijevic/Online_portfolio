@@ -7,24 +7,43 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
   const [project, setProject] = useState(null);
   const spring = useRef(null);
   const projectTileRef = useRef(null);
+  const overlayTileRef = useRef(null);
 
-  const handleProjectClick = (...args) => {
-    if (spring.current && spring.current.onProjectClick) {
-      spring.current.onProjectClick(...args);
-    }
-    // Pozovi metodu iz ProjectTile preko ref-a ako postoji
+  const handleProjectClick = async (...args) => {
+    // 1. Pusti video odmah
+    if (onProjectSelect) onProjectSelect(repo);
+    // 2. Scale ProjectTile i overlay
     if (projectTileRef.current && projectTileRef.current.onProjectClick) {
-      console.log("Calling onProjectClick from ProjectTile via ref");
-      projectTileRef.current.onProjectClick(...args);
+      projectTileRef.current.onProjectClick();
     }
-    if (onProjectDrop && repo) onProjectDrop(repo);
+    if (overlayTileRef.current && overlayTileRef.current.onProjectClick) {
+      overlayTileRef.current.onProjectClick();
+    }
+    // 3. Rotiraj Spring
+    if (spring.current && spring.current.onProjectClick) {
+      spring.current.onProjectClick();
+    }
+    // 4. Nakon 0.6s, drop animacija
+    setTimeout(() => {
+      if (projectTileRef.current && projectTileRef.current.onProjectDrop) {
+        projectTileRef.current.onProjectDrop();
+      }
+      if (overlayTileRef.current && overlayTileRef.current.onProjectDrop) {
+        overlayTileRef.current.onProjectDrop();
+      }
+      if (onProjectDrop && repo) onProjectDrop(repo);
+    }, 600);
   };
-  const handleProjectHover = (...args) => {
-    if (spring.current && spring.current.onProjectHover) {
-      spring.current.onProjectHover(...args);
+
+  // Hover enter/leave za spring animaciju
+  const handleProjectHoverEnter = () => {
+    if (spring.current && spring.current.onProjectHoverEnter) {
+      spring.current.onProjectHoverEnter();
     }
-    if (project && project.onProjectHover) {
-      project.onProjectHover(...args);
+  };
+  const handleProjectHoverLeave = () => {
+    if (spring.current && spring.current.onProjectHoverLeave) {
+      spring.current.onProjectHoverLeave();
     }
   };
 
@@ -36,7 +55,8 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
     <div
       className="snack-tile"
       style={{ ...style, position: 'relative', cursor: 'pointer' }}
-      onMouseEnter={handleProjectHover}
+      onMouseEnter={handleProjectHoverEnter}
+      onMouseLeave={handleProjectHoverLeave}
       onClick={handleProjectClick}
     >
       <img
@@ -63,11 +83,13 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
           onSelect={onProjectSelect}
         />
         <ProjectTile
+          ref={overlayTileRef}
           repo={repo}
           style={{
             zIndex: 4,
             clipPath: 'inset(50% 0 0 0)'
           }}
+          overlay
           onSelect={onProjectSelect}
         />
       </>
