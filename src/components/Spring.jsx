@@ -1,19 +1,11 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useImperativeHandle } from 'react';
 
-function Spring({ repo, onSelect, style, scale = 0.8, rotation = -125, image }) {
-  const [showTooltip, setShowTooltip] = useState(false);
+const Spring = forwardRef(function Spring({ repo, onSelect, style, scale = 0.8, rotation = -125, image }, ref) {
+  useImperativeHandle(ref, () => ({
+    onProjectClick: () => {},
+    onProjectHover: () => {},
+  }), []);
 
-  const handleClick = () => {
-    console.log('Clicked repo (spring):', repo?.name);
-    if (onSelect) onSelect(repo);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleClick();
-    }
-  };
 
   // Compose transform string: translate, scale, rotate
     const imgTransform = `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
@@ -21,19 +13,7 @@ function Spring({ repo, onSelect, style, scale = 0.8, rotation = -125, image }) 
 
   return (
     <>
-      <div
-        style={style}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onFocus={() => setShowTooltip(true)}
-        onBlur={() => setShowTooltip(false)}
-        tabIndex={0}
-        role="button"
-        aria-label={`Drop project ${repo?.name}`}
-        aria-describedby={showTooltip ? `tooltip-${repo?.id}` : undefined}
-      >
+      <div style={style}>
           <img
             src={imgSrc}
             alt={repo?.name || 'spring'}
@@ -47,12 +27,12 @@ function Spring({ repo, onSelect, style, scale = 0.8, rotation = -125, image }) 
               left: '50%',
               top: '50%',
               pointerEvents: 'auto',
-              marginLeft: '-10px' /* this moves spring left/right*/
+              marginLeft: '-10px'
             }}
           />
       </div>
     </>
   );
-}
+});
 
 export default Spring;

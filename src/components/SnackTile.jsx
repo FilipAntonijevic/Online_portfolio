@@ -1,12 +1,44 @@
 
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import Spring from './Spring';
 import ProjectTile from './ProjectTile';
 
 function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
-  // Uvek prikazuj full_spring.png kao background
+  const [project, setProject] = useState(null);
+  const spring = useRef(null);
+  const projectTileRef = useRef(null);
+
+  const handleProjectClick = (...args) => {
+    if (spring.current && spring.current.onProjectClick) {
+      spring.current.onProjectClick(...args);
+    }
+    // Pozovi metodu iz ProjectTile preko ref-a ako postoji
+    if (projectTileRef.current && projectTileRef.current.onProjectClick) {
+      console.log("Calling onProjectClick from ProjectTile via ref");
+      projectTileRef.current.onProjectClick(...args);
+    }
+    if (onProjectDrop && repo) onProjectDrop(repo);
+  };
+  const handleProjectHover = (...args) => {
+    if (spring.current && spring.current.onProjectHover) {
+      spring.current.onProjectHover(...args);
+    }
+    if (project && project.onProjectHover) {
+      project.onProjectHover(...args);
+    }
+  };
+
+  React.useEffect(() => {
+    setProject(repo || null);
+  }, [repo]);
+
   return (
-    <div className="snack-tile" style={{ ...style, position: 'relative' }}>
+    <div
+      className="snack-tile"
+      style={{ ...style, position: 'relative', cursor: 'pointer' }}
+      onMouseEnter={handleProjectHover}
+      onClick={handleProjectClick}
+    >
       <img
         src="/images/full_spring.png"
         alt="full spring background"
@@ -25,30 +57,25 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
     {repo && (
       <>
         <ProjectTile
+          ref={projectTileRef}
           repo={repo}
-          onDrop={onProjectDrop}
-          onSelect={onProjectSelect}
           style={{ zIndex: 2 }}
+          onSelect={onProjectSelect}
         />
-
         <ProjectTile
           repo={repo}
-          onDrop={onProjectDrop}
-          onSelect={onProjectSelect}
           style={{
             zIndex: 4,
             clipPath: 'inset(50% 0 0 0)'
           }}
-
-          />
-
+          onSelect={onProjectSelect}
+        />
       </>
-     )}
+    )}
 
       <Spring
+        ref={spring}
         repo={repo}
-        onDrop={onProjectDrop}
-        onSelect={onProjectSelect}
         style={{ zIndex: 3}}
       />
     </div>

@@ -1,6 +1,23 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 
-function ProjectTile({ repo, onDrop, onSelect, style }) {
+const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, style }, ref) {
+    // expose imperative methods
+    useImperativeHandle(ref, () => ({
+      onProjectClick: () => {
+        // Primer: animacija klona kao ranije
+        if (tileRef.current) {
+          const rect = tileRef.current.getBoundingClientRect();
+          const cloneId = Date.now();
+          setClones(prev => [...prev, { id: cloneId, rect }]);
+          setTimeout(() => {
+            setClones(prev => prev.filter(c => c.id !== cloneId));
+            if (onDrop && repo) onDrop(repo);
+          }, 600);
+        }
+        // Pozovi onSelect ako treba
+        if (onSelect) onSelect(repo);
+      }
+    }), [onDrop, onSelect, repo]);
   const [showTooltip, setShowTooltip] = useState(false);
   const [clones, setClones] = useState([]);
   const tileRef = useRef(null);
@@ -19,41 +36,7 @@ function ProjectTile({ repo, onDrop, onSelect, style }) {
 
   const getScale = (name) => (imgScales[name] ?? 1);
 
-  const handleClick = () => {
-    // Debug: log repo name
-    console.log('Clicked repo:', repo.name);
-    
-    // Show video preview immediately
-    if (onSelect) {
-      onSelect(repo);
-    }
-    
-    // Create a clone for animation
-    if (tileRef.current) {
-      const rect = tileRef.current.getBoundingClientRect();
-      const cloneId = Date.now();
-      
-      setClones(prev => [...prev, {
-        id: cloneId,
-        rect: rect
-      }]);
-      
-      // Remove clone after animation and notify parent
-      setTimeout(() => {
-        setClones(prev => prev.filter(c => c.id !== cloneId));
-        onDrop(repo);
-      }, 600);
-    }
-  };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      handleClick();
-    }
-  };
-
-  // Merge default style with incoming style prop
   const defaultDivStyle = { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%' };
   const mergedDivStyle = { ...defaultDivStyle, ...style };
 
@@ -63,16 +46,7 @@ function ProjectTile({ repo, onDrop, onSelect, style }) {
         ref={tileRef}
         className={`project-tile ${(repo.name === 'Grafika-projekat' || repo.name === 'Tavern_Tower' || repo.name === 'Optimal_block_packing' || repo.name === 'Mastermind_best_starting_move_proof' || repo.name === 'score_sheet' || repo.name === 'hand_draw_simulator' || repo.name === 'chesseption' || repo.name === 'fun_elections' || repo.name === 'lauz_hack' || repo.name === 'TicTacToe') ? 'project-tile-image' : ''}`}
         style={mergedDivStyle}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onFocus={() => setShowTooltip(true)}
-        onBlur={() => setShowTooltip(false)}
-        tabIndex={0}
-        role="button"
-        aria-label={`Drop project ${repo.name}`}
-        aria-describedby={showTooltip ? `tooltip-${repo.id}` : undefined}
+        // ...bez onClick/onMouseEnter/onFocus
       >
         {repo.name === 'Grafika-projekat' ? (
           <img 
@@ -198,6 +172,6 @@ function ProjectTile({ repo, onDrop, onSelect, style }) {
       ))}
     </>
   );
-}
+});
 
 export default ProjectTile;
