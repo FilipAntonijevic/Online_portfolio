@@ -1,4 +1,4 @@
-const BG_ROTATE_DURATION = 1250;
+const BG_ROTATE_DURATION = 1000;
 
 import React, { useRef, useState } from 'react';
 import Spring from './Spring';
@@ -72,7 +72,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
           left: 'calc(50% + 10px)',
           top: '50%',
           transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
-          transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
+          transition: `transform ${BG_ROTATE_DURATION}ms linear`,
           objectFit: 'contain',
           zIndex: 2,
           pointerEvents: 'none',
@@ -88,7 +88,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
           left: 'calc(50% + 5px)',
           top: '50%',
           transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
-          transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
+          transition: `transform ${BG_ROTATE_DURATION}ms linear`,
           objectFit: 'contain',
           zIndex: 4,
           pointerEvents: 'none',
@@ -104,7 +104,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
           left: '50%',
           top: '50%',
           transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
-          transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
+          transition: `transform ${BG_ROTATE_DURATION}ms linear`,
           objectFit: 'contain',
           zIndex: 6,
           pointerEvents: 'none',
