@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function Spring({ repo, onSelect, style, scale = 0.8, rotation = -105, image }) {
+function Spring({ repo, onSelect, style, scale = 0.8, rotation = -125, image }) {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleClick = () => {
@@ -17,7 +17,7 @@ function Spring({ repo, onSelect, style, scale = 0.8, rotation = -105, image }) 
 
   // Compose transform string: translate, scale, rotate
     const imgTransform = `translate(-50%, -50%) scale(${scale}) rotate(${rotation}deg)`;
-    const imgSrc = image || "/images/spring.png";
+    const imgSrc = image || "/images/spring2.png";
 
   return (
     <>
