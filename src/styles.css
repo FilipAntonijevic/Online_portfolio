@@ -157,6 +157,25 @@
     align-items: stretch;
   }
 
+  .vending-machine-bottom{
+    max-width: var(--machine-max-width);
+    margin: 0 auto;
+    background-image: url('/images/Vending_machine_bottom.png');
+    background-size: 120% 100vh; /* restore previous size */
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-color: transparent;
+    border-radius: var(--border-radius);
+    box-shadow: none;
+    position: relative;
+    min-height: 100vh; /* restore previous min-height */
+    /*outline: 2px solid blue; /* Vending machine outline */
+    padding: 2.4rem 0rem 6.5rem 1.5rem; /* restore original padding */
+    display: flex; /* layout: snack-box + control */
+    align-items: stretch;
+
+  }
+
   .projects-section {
     display: flex;
     flex-direction: column;
