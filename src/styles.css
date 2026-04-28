@@ -17,7 +17,6 @@
     --color-tile-text: #fff;
     --color-tile-hover: #333;
     --color-chute: #1a1a1a;
-    --color-chute-glow: #4a90e2;
     --color-error: #d32f2f;
     
     /* Spacing */
@@ -368,11 +367,6 @@
     transform: scale(1.1);
   }
 
-  .close-video:focus-visible {
-    /*outline: 2px solid var(--color-chute-glow);*/
-    outline-offset: 1px;
-  }
-
   /* Status Messages */
   .status-message {
     display: flex;
@@ -415,11 +409,6 @@
     background: transparent;
     transform: none; /* no lift on hover */
     outline: none;
-  }
-
-  .project-tile:focus-visible {
-    outline: 3px solid var(--color-chute-glow);
-    outline-offset: 2px;
   }
 
   .project-name {
@@ -521,27 +510,6 @@
     border-top-color: var(--color-accent);
   }
 
-  /* Drop Animation */
-  .project-tile.dropping {
-    animation: dropDown 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-    pointer-events: none;
-  }
-
-  @keyframes dropDown {
-    0% {
-      transform: translateY(0) scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: translateY(200px) scale(0.9);
-      opacity: 0.7;
-    }
-    100% {
-      transform: translateY(400px) scale(0.5);
-      opacity: 0;
-    }
-  }
-
   /* ===================================
     Chute Area
     =================================== */
@@ -578,11 +546,6 @@
   /* remove hover background so chute remains transparent */
   .chute-area.active:hover {
     background: transparent;
-  }
-
-  .chute-area.active:focus {
-    outline: 3px solid var(--color-chute-glow);
-    outline-offset: -3px;
   }
 
     @keyframes chuteGlow {
@@ -770,12 +733,6 @@
     .chute-area {
       border: 2px solid white;
     }
-  }
-
-  /* Focus visible for keyboard navigation */
-  *:focus-visible {
-    outline: 2px solid var(--color-chute-glow);
-    outline-offset: 2px;
   }
 
   /* Screen reader only content */

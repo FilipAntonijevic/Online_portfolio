@@ -3,7 +3,7 @@
 const SCALE_UP_DURATION = 300;
 const CLONE_TILT_DURATION = 200;
 const CLONE_SCALE_DURATION = 500;
-const FALL_ANIMATION_DURATION = 11700;
+const FALL_ANIMATION_DURATION = 250;
 
 import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import { imageRepos } from '../includedProjects';
@@ -20,9 +20,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
         if (tileRef.current) {
           const rect = tileRef.current.getBoundingClientRect();
           const cloneId = Date.now();
-          // U trenutku kreiranja klona koristi trenutni scale
           setClones([{ id: cloneId, rect, scale, z: 10, dropping: false, dropY: null, rotation: 0 }]);
-          // Animiraj scale klona do 1.08 u CLONE_SCALE_DURATION
           let start = null;
           function animateScale(ts) {
             if (!start) start = ts;
@@ -34,17 +32,15 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
             if (progress < 1) {
               requestAnimationFrame(animateScale);
             } else {
-              setClones(prev => prev.map(c => {
-                if (c.id === cloneId && !c.dropping) {
-                  const dropY = window.innerHeight * 0.95 - c.rect.top - c.rect.height / 2;
-                  return { ...c, dropping: true, dropY };
-                }
-                return c;
-              }));
-              setTimeout(() => {
-                setClones([]);
-                if (onDrop && repo) onDrop(repo);
-              }, FALL_ANIMATION_DURATION);
+              // Prvo renderuj klon sa dropping: false, pa tek u sledećem frame-u pokreni drop
+              const dropY = window.innerHeight * 0.95 - rect.top - rect.height / 2;
+              requestAnimationFrame(() => {
+                setClones(prev => prev.map(c => c.id === cloneId ? { ...c, dropping: true, dropY } : c));
+                setTimeout(() => {
+                  setClones([]);
+                  if (onDrop && repo) onDrop(repo);
+                }, FALL_ANIMATION_DURATION);
+              });
             }
           }
           requestAnimationFrame(animateScale);
