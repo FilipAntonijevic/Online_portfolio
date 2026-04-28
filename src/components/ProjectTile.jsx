@@ -130,7 +130,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
           />
         ) : repo.name === 'TicTacToe' ? (
           <img
-            src="/images/TicTacToe2.png"
+            src="/images/TicTacToe.png"
             alt={repo.name}
             style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
           />
