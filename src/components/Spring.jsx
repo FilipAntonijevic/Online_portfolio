@@ -53,7 +53,7 @@ const Spring = forwardRef(function Spring({ repo, onSelect, style, scale = 0.8, 
   }), [rotation]);
 
   const imgTransform = `translate(-50%, -50%) scale(${scale}) rotate(${currentRotation}deg)`;
-  const imgSrc = image || "/images/spring2.png";
+  const imgSrc = image || "/images/spring3.png";
 
   return (
     <>

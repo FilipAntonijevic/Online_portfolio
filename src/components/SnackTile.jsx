@@ -63,8 +63,41 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
       onMouseLeave={handleProjectHoverLeave}
       onClick={handleProjectClick}
     >
+      {/* Spring background - index -10 (10px right) */}
       <img
-        src="/images/full_spring_2.png"
+        src="/images/full_spring3.png"
+        alt="full spring background"
+        style={{
+          position: 'absolute',
+          left: 'calc(50% + 10px)',
+          top: '50%',
+          transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
+          transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
+          objectFit: 'contain',
+          zIndex: 2,
+          pointerEvents: 'none',
+          userSelect: 'none'
+        }}
+      />
+      {/* Spring background - index -5 (5px right) */}
+      <img
+        src="/images/full_spring3.png"
+        alt="full spring background"
+        style={{
+          position: 'absolute',
+          left: 'calc(50% + 5px)',
+          top: '50%',
+          transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
+          transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
+          objectFit: 'contain',
+          zIndex: 4,
+          pointerEvents: 'none',
+          userSelect: 'none'
+        }}
+      />
+      {/* Spring background - index 0 (original, no offset) */}
+      <img
+        src="/images/full_spring3.png"
         alt="full spring background"
         style={{
           position: 'absolute',
@@ -73,25 +106,67 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
           transform: `translate(-50%, -50%) scale(0.8) rotate(${bgRotation}deg)`,
           transition: `transform ${BG_ROTATE_DURATION}ms cubic-bezier(0.4, 0.2, 0.2, 1)`,
           objectFit: 'contain',
-          zIndex: 0,
+          zIndex: 6,
           pointerEvents: 'none',
           userSelect: 'none'
         }}
       />
-      
+
+
     {repo && (
       <>
+        {/* Projekat slike iza glavnog, sa offsetima */}
+        <ProjectTile
+          repo={repo}
+          style={{
+            zIndex: 1,
+            position: 'absolute',
+            left: 'calc(50% + 15px)',
+            top: '50%',
+            transform: 'translate(-50%, -50%) scale(0.8)',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+          disabled
+        />
+        <ProjectTile
+          repo={repo}
+          style={{
+            zIndex: 3,
+            position: 'absolute',
+            left: 'calc(50% + 10px)',
+            top: '50%',
+            transform: 'translate(-50%, -50%) scale(0.85)',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+          disabled
+        />
+        <ProjectTile
+          repo={repo}
+          style={{
+            zIndex: 5,
+            position: 'absolute',
+            left: 'calc(50% + 5px)',
+            top: '50%',
+            transform: 'translate(-50%, -50%) scale(0.9)',
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+          disabled
+        />
+        {/* Glavni projekat */}
         <ProjectTile
           ref={projectTileRef}
           repo={repo}
-          style={{ zIndex: 2 }}
+          style={{ zIndex: 7 }}
           onSelect={onProjectSelect}
         />
         <ProjectTile
           ref={overlayTileRef}
           repo={repo}
           style={{
-            zIndex: 4,
+            zIndex: 9,
             clipPath: 'inset(50% 0 0 0)'
           }}
           overlay
@@ -103,7 +178,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
       <Spring
         ref={spring}
         repo={repo}
-        style={{ zIndex: 3}}
+        style={{ zIndex: 8}}
       />
     </div>
   );
