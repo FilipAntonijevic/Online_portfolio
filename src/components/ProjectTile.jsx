@@ -11,7 +11,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
   const [scale, setScale] = useState(1);
   const [isDropping, setIsDropping] = useState(false);
   // expose imperative methods
-  useImperativeHandle(ref, () => ({
+    useImperativeHandle(ref, () => ({
     onProjectClick: () => {
       setScale(1.03);
       setTimeout(() => {
@@ -19,20 +19,20 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
         if (tileRef.current) {
           const rect = tileRef.current.getBoundingClientRect();
           const cloneId = Date.now();
-          setClones([{ id: cloneId, rect, scale: 1.03, z: 10, dropping: false, dropY: null, rotation: 0 }]);
+          // U trenutku kreiranja klona koristi trenutni scale
+          setClones([{ id: cloneId, rect, scale, z: 10, dropping: false, dropY: null, rotation: 0 }]);
           // Animiraj scale klona do 1.08 u CLONE_SCALE_DURATION
           let start = null;
-          // Animacija skaliranja (paralelno sa rotacijom)
           function animateScale(ts) {
             if (!start) start = ts;
             const elapsed = ts - start;
             const progress = Math.min(elapsed / CLONE_SCALE_DURATION, 1);
-            const scale = 1.03 + (1.08 - 1.03) * progress;
-            setClones(prev => prev.map(c => c.id === cloneId ? { ...c, scale } : c));
+            const targetStart = scale; // trenutni scale
+            const scaleVal = targetStart + (1.08 - targetStart) * progress;
+            setClones(prev => prev.map(c => c.id === cloneId ? { ...c, scale: scaleVal } : c));
             if (progress < 1) {
               requestAnimationFrame(animateScale);
             } else {
-              // Kada se završi skaliranje klona, pokreni pad
               setClones(prev => prev.map(c => {
                 if (c.id === cloneId && !c.dropping) {
                   const dropY = window.innerHeight * 0.95 - c.rect.top - c.rect.height / 2;
@@ -48,7 +48,6 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
           }
           requestAnimationFrame(animateScale);
 
-          // Animacija rotacije (nakon CLONE_TILT_DURATION)
           setTimeout(() => {
             setClones(prev => prev.map(c => c.id === cloneId ? { ...c, rotation: 4 } : c));
           }, CLONE_TILT_DURATION);
