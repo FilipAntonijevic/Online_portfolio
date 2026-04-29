@@ -195,7 +195,7 @@ img {
     /*border: 2px solid red; /* Snack (glass) border */
     border-radius: var(--border-radius);
     padding: 3rem 1.5rem 0rem 1rem; 
-    flex: 1 1 auto; /* grow to fill available space inside snack-box */
+    flex: 1 1 auto; 
     box-sizing: border-box;
     background: transparent;
   }
@@ -209,8 +209,7 @@ img {
     gap: var(--spacing-sm);
     /*border: 2px solid gold; /* Snack-box wrapper outline (yellow) */
     border-radius: var(--border-radius);
-    /* increase bottom padding so projects-section can expand downward */
-    padding: 1rem 1.5rem calc(1rem - 7px) 1rem; /* add 20px extra bottom space */
+    padding: 1rem 1.5rem calc(1rem - 7px) 1rem; 
     box-sizing: border-box;
   }
 
@@ -321,7 +320,8 @@ img {
   }
 
   .description-text {
-    color: #fff;
+    /* Use a soft off-white instead of pure white for better contrast */
+    color: #aeaeae;
     font-size: 0.8rem;
     line-height: 1.6;
     text-align: left;
@@ -341,7 +341,7 @@ img {
   .loading-block {
     width: calc((100% - (13 * 4px)) / 14);
     height: 100%;
-    background: #fff;
+    background: #aeaeae;
     opacity: 0;
     animation: blockAppear 0.1s forwards;
   }
