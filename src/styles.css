@@ -162,7 +162,7 @@ img {
     position: relative;
     min-height: 100vh; /* restore previous min-height */
     /*outline: 2px solid blue; /* Vending machine outline */
-    padding: 2.4rem 0rem 6.5rem 1.5rem; /* restore original padding */
+    padding: 3.9rem 0rem 6.5rem 1.5rem; /* restore original padding */
     display: flex; /* layout: snack-box + control */
     align-items: stretch;
   }
@@ -172,7 +172,7 @@ img {
     margin: 0 auto;
     background-image: url('/images/rest/Vending_machine_bottom.png');
     background-size: 120% 100vh; 
-    background-repeat: no-repeat;
+    background-repeat: no-repeat;/* prevent tiling */
     background-position: center top;
     background-color: transparent;
     border-radius: var(--border-radius);
@@ -192,7 +192,7 @@ img {
     justify-content: flex-start;
     /*border: 2px solid red; /* Snack (glass) border */
     border-radius: var(--border-radius);
-    padding: 3.52rem 1.5rem 1rem 1rem; 
+    padding: 3rem 1.5rem 0rem 1rem; 
     flex: 1 1 auto; /* grow to fill available space inside snack-box */
     box-sizing: border-box;
     background: transparent;
@@ -207,7 +207,8 @@ img {
     gap: var(--spacing-sm);
     /*border: 2px solid gold; /* Snack-box wrapper outline (yellow) */
     border-radius: var(--border-radius);
-    padding: 1rem 1.5rem 1rem 1rem; /* restore original padding */
+    /* increase bottom padding so projects-section can expand downward */
+    padding: 1rem 1.5rem calc(1rem - 7px) 1rem; /* add 20px extra bottom space */
     box-sizing: border-box;
   }
 
@@ -519,17 +520,16 @@ img {
     Chute Area
     =================================== */
   .chute-area {
+      /* make chute taller and move it lower so it aligns under projects */
       flex: 0 0 14%;
-      /* move visually: 1px right, 4px up (adjusted: move 2px further up) */
-       transform: translate(-5px, -5px);
-      min-height: 0;
+      transform: translate(-5px, 25px);
+      min-height: 40px;
      /*border: 2px solid rgb(153, 51, 153); /* Chute outline (purple) */
      border-radius: 6px;
         overflow: hidden; /* clip shine inside the chute box */
       position: relative; /* needed for shine pseudo-element */
-      /* slightly reduce overall width and height */
-       width: calc(var(--chute-width) - 10px); /* control overall width */
-      max-height: calc(15% - 4px);
+      width: calc(var(--chute-width) - 10px); 
+      max-height: calc(22% - 4px);
      margin: 0 auto; /* center horizontally inside parent */
       padding: var(--spacing-sm) var(--chute-padding-inline); /* vertical and horizontal padding */
     display: flex;
