@@ -69,10 +69,6 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
               </div>
             )}
           </div>
-
-                {/* Box area (chute) will sit below projects inside the snack-box */}
-                {/* chute-area moved down into the snack-box wrapper */}
-
                 <div
                   className={`chute-area ${droppedRepo ? 'active' : ''} ${chutePressed ? 'pressed' : ''}`}
                   onClick={handleChuteClick}

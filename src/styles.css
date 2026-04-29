@@ -85,7 +85,8 @@ img {
     max-width: 2400px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: var(--column-width) 1fr var(--column-width);
+    /* Left column fixed to 33% of viewport width, center uses remaining 67% */
+    grid-template-columns: 33% 67%;
     gap: var(--spacing-xl);
     align-items: start;
   }

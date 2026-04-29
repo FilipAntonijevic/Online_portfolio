@@ -2,18 +2,27 @@ import React from 'react';
 
 function LeftColumn() {
   return (
-    <aside className="column left-column">
-      <h2 className="column-heading">About me</h2>
-      <div className="column-content">
-        {/* 
-          CUSTOMIZATION: Edit the text below to personalize your bio.
-          Keep it concise (2-4 sentences recommended).
-        */}
-        <p className="bio-text">
-          Software developer with a degree in Mathematics from the University of Belgrade. 
-          I build web applications with modern JavaScript and React.
-        </p>
-      </div>
+    <aside
+      className="left-column"
+      style={{
+        flex: 1,
+        height: '100vh',
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <img
+        src="/images/Poster.png"
+        alt="Poster"
+          style={{
+            width: '60%',
+            height: 'auto',
+            display: 'block',
+            transform: 'translate(9%, -15%)',
+          }}
+      />
     </aside>
   );
 }

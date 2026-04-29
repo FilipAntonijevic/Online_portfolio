@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import LeftColumn from './components/LeftColumn';
 import CenterMachine from './components/CenterMachine';
-import RightColumn from './components/RightColumn';
 import './styles.css';
 
 // Configuration - Edit these values to customize
@@ -137,7 +136,7 @@ function App() {
           onChuteClick={handleChuteClick}
           onVideoClose={handleVideoClose}
         />
-        <RightColumn />
+        {/* Right column removed per layout change */}
       </div>
     </div>
   );
