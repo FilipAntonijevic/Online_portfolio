@@ -14,7 +14,7 @@ function LeftColumn() {
       }}
     >
       <img
-        src="/images/Poster.png"
+        src="/images/rest/Poster.png"
         alt="Poster"
           style={{
             width: '60%',

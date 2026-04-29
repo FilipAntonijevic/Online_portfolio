@@ -43,7 +43,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
   return (
     <main className="column center-column">
       <div className="vending-machine" style={{position: 'relative'}}>
-        <div className="vending-machine-bottom" style={{position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', zIndex: 9999, pointerEvents: 'none', userSelect: 'none'}} />
+        <div className="vending-machine-bottom" style={{position: 'absolute', left: 0, bottom: 0, width: '100%', height: '100vh', zIndex: 9999, pointerEvents: 'none', userSelect: 'none'}} />
           
         <div className="snack-box">
           {/* Left side: Projects (snack) */}
