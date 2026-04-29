@@ -20,7 +20,7 @@ function LeftColumn() {
             width: '60%',
             height: 'auto',
             display: 'block',
-            transform: 'translate(9%, -15%)',
+            transform: 'translate(10%, -30%)',
           }}
       />
     </aside>
