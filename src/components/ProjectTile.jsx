@@ -3,12 +3,13 @@
 const SCALE_UP_DURATION = 300;
 const CLONE_TILT_DURATION = 200;
 const CLONE_SCALE_DURATION = 500;
-const FALL_ANIMATION_DURATION = 250;
 
 import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
 import { imageRepos } from '../includedProjects';
 
-const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, style, overlay }, ref) {
+const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, style, overlay, fallDuration }, ref) {
+  // fallDuration is in ms and controls how long the drop animation lasts for clones.
+  const FALL_ANIMATION_DURATION = fallDuration ?? 250;
   const [scale, setScale] = useState(1);
   const [isDropping, setIsDropping] = useState(false);
   // expose imperative methods

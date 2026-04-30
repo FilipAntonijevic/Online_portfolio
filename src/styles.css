@@ -321,7 +321,7 @@ img {
 
   .description-text {
     /* Use a soft off-white instead of pure white for better contrast */
-    color: #aeaeae;
+    color: #e2e2e2;
     font-size: 0.8rem;
     line-height: 1.6;
     text-align: left;
@@ -341,7 +341,7 @@ img {
   .loading-block {
     width: calc((100% - (13 * 4px)) / 14);
     height: 100%;
-    background: #aeaeae;
+    background: #e2e2e2;
     opacity: 0;
     animation: blockAppear 0.1s forwards;
   }

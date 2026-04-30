@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ProjectTile from './ProjectTile';
 import Spring from './Spring';
 import SnackTile from './SnackTile';
@@ -6,6 +6,7 @@ import SnackTile from './SnackTile';
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose }) {
   const [chutePressed, setChutePressed] = useState(false);
   const [dropTargetY, setDropTargetY] = useState(window.innerHeight * 0.9);
+  const [postSequenceActive, setPostSequenceActive] = useState(false);
 
   useEffect(() => {
     function updateDropTargetY() {
@@ -32,6 +33,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
       <SnackTile
         key={repo ? repo.id : `placeholder-${i}`}
         repo={repo}
+        slotIndex={i}
         style={{ position: 'relative' }}
         onProjectDrop={onProjectDrop}
         onProjectSelect={onProjectSelect}
@@ -123,7 +125,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       controlsList="nodownload nofullscreen noremoteplayback"
                       disablePictureInPicture
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onEnded={onVideoClose}
+                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                       onContextMenu={(e) => e.preventDefault()}
                     >
                       <source src="/videos/Mamuti na ostrvu - projekat iz računarske grafike.mp4?v=2" type="video/mp4" />
@@ -138,7 +140,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       controlsList="nodownload nofullscreen noremoteplayback"
                       disablePictureInPicture
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onEnded={onVideoClose}
+                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                       onContextMenu={(e) => e.preventDefault()}
                     >
                       <source src="/videos/Optimal_block_packing.mkv?v=2" type="video/x-matroska" />
@@ -154,7 +156,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       controlsList="nodownload nofullscreen noremoteplayback"
                       disablePictureInPicture
                       style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'high-quality' }}
-                      onEnded={onVideoClose}
+                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                       onContextMenu={(e) => e.preventDefault()}
                       onLoadedMetadata={(e) => e.target.playbackRate = 2.0}
                     >
@@ -171,7 +173,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                         controlsList="nodownload nofullscreen noremoteplayback"
                         disablePictureInPicture
                         className="centered-video"
-                        onEnded={onVideoClose}
+                        onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                         onContextMenu={(e) => e.preventDefault()}
                       >
                         <source src="/videos/Score_sheet.mp4?v=2" type="video/mp4" />
@@ -179,20 +181,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       </video>
                     </div>
                   ) : (
-                    <video
-                      key="static-video"
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      controlsList="nodownload nofullscreen noremoteplayback"
-                      disablePictureInPicture
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onContextMenu={(e) => e.preventDefault()}
-                    >
-                      <source src="/videos/TV STATIC (4K 60FPS).mp4" type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
+                    postSequenceActive ? <LoopingSequenceVideo initialPhase="static" /> : <LoopingSequenceVideo />
                   )}
                 </div>
               </div>
@@ -209,3 +198,56 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
 }
 
 export default CenterMachine;
+
+function LoopingSequenceVideo({ initialPhase = 'hello' }) {
+  const videoRef = useRef(null);
+  // 'hello' or 'static' - allow starting phase to be static when requested
+  const [phase, setPhase] = useState(initialPhase);
+  // remaining times to play hello in this cycle (3..7)
+  const randomHelloCount = () => Math.floor(Math.random() * 5) + 3;
+  const [helloRemaining, setHelloRemaining] = useState(() => initialPhase === 'hello' ? randomHelloCount() : 0);
+
+  useEffect(() => {
+    // ensure video plays when phase or remaining changes
+    const vid = videoRef.current;
+    if (!vid) return;
+    const p = vid.play();
+    if (p && p.catch) p.catch(() => {});
+  }, [phase, helloRemaining]);
+
+  const onEnded = () => {
+    if (phase === 'hello') {
+      if (helloRemaining > 1) {
+        setHelloRemaining(r => r - 1);
+      } else {
+        setPhase('static');
+      }
+    } else if (phase === 'static') {
+      // after static, reset random hello count and go back to hello
+      setHelloRemaining(randomHelloCount());
+      setPhase('hello');
+    }
+  };
+
+  return (
+    <video
+      key={`${phase}-${helloRemaining}`}
+      ref={videoRef}
+      autoPlay
+      muted
+      playsInline
+      controlsList="nodownload nofullscreen noremoteplayback"
+      disablePictureInPicture
+      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      onContextMenu={(e) => e.preventDefault()}
+      onEnded={onEnded}
+    >
+      {phase === 'hello' ? (
+        <source src="/videos/hello_loop.mp4" type="video/mp4" />
+      ) : (
+        <source src="/videos/TV STATIC (4K 60FPS).mp4" type="video/mp4" />
+      )}
+      Your browser does not support the video tag.
+    </video>
+  );
+}

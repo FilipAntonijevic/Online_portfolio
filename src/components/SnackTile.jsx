@@ -2,22 +2,26 @@ const BG_ROTATE_DURATION = 1000;
 const TILE_CLICK_TIMEOUT = 1100;
 
 import React, { useRef, useState } from 'react';
+
+// Global click timestamp to prevent clicking any project repeatedly.
+// Shared across all SnackTile instances (module scope).
+let lastGlobalProjectClick = 0;
 import Spring from './Spring';
 import ProjectTile from './ProjectTile';
 
 
-function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
+function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect }) {
   const [project, setProject] = useState(null);
   const [bgRotation, setBgRotation] = useState(0);
-  const [lastClicked, setLastClicked] = useState(0);
+  // local per-instance state retains other behaviors, but click lock is global
   const spring = useRef(null);
   const projectTileRef = useRef(null);
   const overlayTileRef = useRef(null);
 
   const handleProjectClick = async (...args) => {
     const now = Date.now();
-    if (now - lastClicked < TILE_CLICK_TIMEOUT) return;
-    setLastClicked(now);
+    if (now - lastGlobalProjectClick < TILE_CLICK_TIMEOUT) return;
+    lastGlobalProjectClick = now;
     // Animiraj rotaciju background slike
     setBgRotation(r => r - 360);
     // 1. Pusti video odmah
@@ -60,6 +64,14 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
   React.useEffect(() => {
     setProject(repo || null);
   }, [repo]);
+
+  // Determine shelf/row from slotIndex. Grid is 4 columns by 4 rows.
+  // row 0 = top shelf, row 3 = bottom shelf. We want durations:
+  // row 0 -> 400ms, row 1 -> 300ms, row 2 -> 200ms, row 3 -> 100ms
+  const cols = 4;
+  const row = Math.floor((slotIndex || 0) / cols);
+  const shelfDurations = [400, 300, 200, 100];
+  const fallDurationForShelf = shelfDurations[row] ?? 100;
 
   return (
     <div
@@ -124,6 +136,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
         {/* Projekat slike iza glavnog, sa offsetima */}
         <ProjectTile
           repo={repo}
+          fallDuration={fallDurationForShelf}
           style={{
             zIndex: 1,
             position: 'absolute',
@@ -137,6 +150,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
         />
         <ProjectTile
           repo={repo}
+          fallDuration={fallDurationForShelf}
           style={{
             zIndex: 3,
             position: 'absolute',
@@ -150,6 +164,7 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
         />
         <ProjectTile
           repo={repo}
+          fallDuration={fallDurationForShelf}
           style={{
             zIndex: 5,
             position: 'absolute',
@@ -165,12 +180,14 @@ function SnackTile({ repo, style, onProjectDrop, onProjectSelect }) {
         <ProjectTile
           ref={projectTileRef}
           repo={repo}
+          fallDuration={fallDurationForShelf}
           style={{ zIndex: 7 }}
           onSelect={onProjectSelect}
         />
         <ProjectTile
           ref={overlayTileRef}
           repo={repo}
+          fallDuration={fallDurationForShelf}
           style={{
             zIndex: 9,
             clipPath: 'inset(50% 0 0 0)'
