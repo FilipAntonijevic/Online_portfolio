@@ -1,7 +1,7 @@
 
 // Animation durations (in ms)
 const SCALE_UP_DURATION = 300;
-const CLONE_TILT_DURATION = 200;
+const CLONE_TILT_DURATION = 1000;
 const CLONE_SCALE_DURATION = 500;
 
 import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
@@ -16,41 +16,55 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
   // expose imperative methods
     useImperativeHandle(ref, () => ({
     onProjectClick: () => {
+      if (!tileRef.current) return;
+      const rect = tileRef.current.getBoundingClientRect();
+
+      // Portal inside the App scaler so z-index works relative to vending-machine-bottom.
+      const scaler = document.querySelector('[data-scaler="true"]');
+      let appScale = 1;
+      let scalerRect = { top: 0, left: 0 };
+      if (scaler) {
+        appScale = new DOMMatrix(getComputedStyle(scaler).transform).a;
+        scalerRect = scaler.getBoundingClientRect();
+      }
+      // Tile position in design (unscaled) space.
+      const designTop  = (rect.top  - scalerRect.top)  / appScale;
+      const designLeft = (rect.left - scalerRect.left) / appScale;
+      const designW = rect.width  / appScale;
+      const designH = rect.height / appScale;
+
       setScale(1.03);
       setTimeout(() => {
         setScale(1);
-        if (tileRef.current) {
-          const rect = tileRef.current.getBoundingClientRect();
-          const cloneId = Date.now();
-          setClones([{ id: cloneId, rect, scale, z: 10, dropping: false, dropY: null, rotation: 0 }]);
-          let start = null;
-          function animateScale(ts) {
-            if (!start) start = ts;
-            const elapsed = ts - start;
-            const progress = Math.min(elapsed / CLONE_SCALE_DURATION, 1);
-            const targetStart = scale; // trenutni scale
-            const scaleVal = targetStart + (1.08 - targetStart) * progress;
-            setClones(prev => prev.map(c => c.id === cloneId ? { ...c, scale: scaleVal } : c));
-            if (progress < 1) {
-              requestAnimationFrame(animateScale);
-            } else {
-              // Prvo renderuj klon sa dropping: false, pa tek u sledećem frame-u pokreni drop
-              const dropY = window.innerHeight * 0.95 - rect.top - rect.height / 2;
-              requestAnimationFrame(() => {
-                setClones(prev => prev.map(c => c.id === cloneId ? { ...c, dropping: true, dropY } : c));
-                setTimeout(() => {
-                  setClones([]);
-                  if (onDrop && repo) onDrop(repo);
-                }, FALL_ANIMATION_DURATION);
-              });
-            }
+        const cloneId = Date.now();
+        setClones([{ id: cloneId, scale: 1.03, designTop, designLeft, designW, designH, container: scaler, z: 10, dropping: false, dropY: null, rotation: 0 }]);
+        let start = null;
+        function animateScale(ts) {
+          if (!start) start = ts;
+          const elapsed = ts - start;
+          const progress = Math.min(elapsed / CLONE_SCALE_DURATION, 1);
+          const scaleVal = 1.035 + (1.09 - 1.035) * progress;
+          setClones(prev => prev.map(c => c.id === cloneId ? { ...c, scale: scaleVal } : c));
+          if (progress < 1) {
+            requestAnimationFrame(animateScale);
+          } else {
+            // dropY in design space so translateY inside the scaler context is correct.
+            const dropY = (window.innerHeight * 0.95 - rect.top - rect.height / 2) / appScale;
+            requestAnimationFrame(() => {
+              setClones(prev => prev.map(c => c.id === cloneId ? { ...c, dropping: true, dropY } : c));
+              setTimeout(() => {
+                setClones([]);
+                if (onDrop && repo) onDrop(repo);
+              }, FALL_ANIMATION_DURATION);
+            });
           }
-          requestAnimationFrame(animateScale);
-
-          setTimeout(() => {
-            setClones(prev => prev.map(c => c.id === cloneId ? { ...c, rotation: 4 } : c));
-          }, CLONE_TILT_DURATION);
         }
+        requestAnimationFrame(animateScale);
+
+        // Start tilt at same time as scale animation
+        requestAnimationFrame(() => {
+          setClones(prev => prev.map(c => c.id === cloneId ? { ...c, rotation: -4 } : c));
+        });
       }, SCALE_UP_DURATION);
     },
     onProjectDrop: () => {}, // Više nije potreban, sve je u onProjectClick
@@ -60,17 +74,16 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
   const tileRef = useRef(null);
   
 
-
   // Per-image scale overrides 
   // Use keys that exactly match `repo.name` values used below
   const imgScales = {
-    Tavern_Tower: 1.1,
-    hand_draw_simulator: 1.1,
-    'Grafika-projekat': 1.1, 
-    Optimal_block_packing: 1.1, 
-    Mastermind_best_starting_move_proof: 1.3,
-    score_sheet: 1.3,
-    TicTacToe: 1.6
+    Tavern_Tower: 1.2,
+    hand_draw_simulator: 1.2,
+    'Grafika-projekat': 1.2, 
+    Optimal_block_packing: 1.2, 
+    Mastermind_best_starting_move_proof: 1.4,
+    score_sheet: 1.4,
+    TicTacToe: 1.8
   };
 
   const getScale = (name) => (imgScales[name] ?? 1);
@@ -82,7 +95,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
     ...style,
     zIndex: overlay ? 10 : (style?.zIndex || 2),
     transform: `${style?.transform || ''} scale(${scale}) ${isDropping ? 'translateY(120px)' : ''}`.trim(),
-    transition: isDropping ? 'transform 0.2s' : 'transform 0.6s',
+    transition: isDropping ? 'transform 0.2s' : `transform ${SCALE_UP_DURATION}ms ease`,
   };
 
   return (
@@ -149,22 +162,25 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
                correctly even though the app is inside a transform:scale() container */}
       {clones.map(clone => {
         const targetY = clone.dropY ?? 0;
+        if (!clone.container) return null;
         return ReactDOM.createPortal(
           <div
             key={clone.id}
             className={`project-tile project-tile-clone${clone.dropping ? ' dropping' : ''} ${imageRepos.has(repo.name) ? 'project-tile-image' : ''}`}
-              style={{
-              position: 'fixed',
-              top: clone.rect.top,
-              left: clone.rect.left,
-              width: clone.rect.width,
-              height: clone.rect.height,
+            style={{
+              position: 'absolute',
+              top: clone.designTop,
+              left: clone.designLeft,
+              width: clone.designW,
+              height: clone.designH,
+              transformOrigin: '50% 50%',
               pointerEvents: 'none',
               zIndex: (clone.z ?? 0) + 10,
-              transform: `translateY(${clone.dropping ? targetY : 0}px) scale(${clone.scale || 1}) rotate(${clone.rotation || 0}deg)`,
+              transform: `translateY(${clone.dropping ? targetY : 0}px) scale(${clone.scale || 1})`,
+              rotate: `${clone.rotation || 0}deg`,
               transition: clone.dropping
                 ? `transform ${FALL_ANIMATION_DURATION}ms linear`
-                : `transform ${CLONE_SCALE_DURATION}ms, transform ${CLONE_TILT_DURATION}ms`,
+                : `rotate ${CLONE_TILT_DURATION}ms ease`,
             }}
           >
             {repo.name === 'Grafika-projekat' ? (
@@ -220,7 +236,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
               </>
             )}
           </div>,
-          document.body,
+          clone.container,
           clone.id
         );
       })}

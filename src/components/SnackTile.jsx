@@ -70,7 +70,7 @@ function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect 
   // row 0 -> 400ms, row 1 -> 300ms, row 2 -> 200ms, row 3 -> 100ms
   const cols = 4;
   const row = Math.floor((slotIndex || 0) / cols);
-  const shelfDurations = [400, 300, 200, 100];
+  const shelfDurations = [350, 250, 150, 50];
   const fallDurationForShelf = shelfDurations[row] ?? 100;
 
   return (

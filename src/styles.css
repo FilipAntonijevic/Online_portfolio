@@ -33,7 +33,7 @@ img {
     --tile-size: clamp(60px, calc(var(--design-vw, 1vw) * 8), 103px);
     --tile-gap: 1rem;
     --row-gap: calc(1.2rem); 
-    --chute-width: 93%; /* width of the chute area relative to its container */
+    --chute-width: 92%; /* width of the chute area relative to its container */
     --chute-padding-left: 1.4rem;  /* left horizontal padding for chute */
     --chute-padding-right: 1.6rem; /* right horizontal padding for chute */
     /* Row vertical offset base value (adjust this to move rows down) */
@@ -198,7 +198,7 @@ img {
     gap: var(--spacing-sm);
     /*border: 2px solid gold; /* Snack-box wrapper outline (yellow) */
     border-radius: var(--border-radius);
-    padding: 1rem 1.5rem calc(1rem - 7px) 1rem; 
+    padding: 1.65rem 1.5rem calc(1.3rem) 1rem; 
     box-sizing: border-box;
   }
 
@@ -576,9 +576,6 @@ img {
 
   .chute-area.active {
     cursor: pointer;
-    /* keep subtle glow + sweep effect (no hover color)
-       animation for inner glow retained */
-     animation: chuteGlow 2s ease-in-out infinite;
     background: transparent;
   } 
 

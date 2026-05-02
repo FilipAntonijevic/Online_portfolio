@@ -156,7 +156,7 @@ function App() {
         offsetLeft={layout.left}
         offsetTop={layout.top}
       />
-      <div style={{
+      <div data-scaler="true" style={{
         position: 'absolute',
         top:  `${layout.top}px`,
         left: `${layout.left}px`,
