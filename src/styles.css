@@ -274,6 +274,7 @@ img {
   :root {
     --scanline-thickness: 1px;
     --scanline-gap: 3px; /* distance between start of one dark line and the next */
+    --scanline-opacity: 0.12;
     --scanline-blend: multiply; /* blend mode to use */
   }
 
