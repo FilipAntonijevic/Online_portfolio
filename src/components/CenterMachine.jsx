@@ -104,7 +104,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
               </div>
 
               {/* Right side: Video preview screen (control area) */}
-              <div className="video-screen" style={{ position: 'relative', left: '2px', border: '2px solid #000', borderRadius: '12px', boxSizing: 'border-box' }}>
+              <div className="video-screen" style={{ position: 'relative', left: '2px', boxSizing: 'border-box' }}>
                 <div className="screen-frame">
                   {selectedRepo && showDescription ? (
                     <div className="description-overlay">

@@ -48,8 +48,13 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
           if (progress < 1) {
             requestAnimationFrame(animateScale);
           } else {
-            // dropY in design space so translateY inside the scaler context is correct.
-            const dropY = (window.innerHeight * 0.95 - rect.top - rect.height / 2) / appScale;
+            // Drop target: bottom edge of chute-area in design space.
+            // Falls back to 95% of viewport height if chute not found.
+            const chuteEl = document.querySelector('.chute-area');
+            const chuteBottom = chuteEl
+              ? (chuteEl.getBoundingClientRect().bottom - scalerRect.top) / appScale
+              : window.innerHeight * 0.95 / appScale;
+            const dropY = chuteBottom - designTop - designH;
             requestAnimationFrame(() => {
               setClones(prev => prev.map(c => c.id === cloneId ? { ...c, dropping: true, dropY } : c));
               setTimeout(() => {
