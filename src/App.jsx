@@ -16,6 +16,9 @@ document.documentElement.style.setProperty('--design-vh', `${DESIGN_HEIGHT / 100
 const GITHUB_USERNAME = 'FilipAntonijevic';
 const MAX_PROJECTS = 20;// 4 columns x 5 rows
 const includedProjects = ["Tavern_Tower", "Mastermind_best_starting_move_proof", "TicTacToe","Optimal_block_packing", "score_sheet", "hand_draw_simulator", "Grafika-projekat"]; 
+
+// 0 = lights ON (night), 1 = lights OFF (daytime)
+const Daytime = 0;
 function App() {
   const [repos, setRepos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -180,6 +183,7 @@ function App() {
               onChuteClick={handleChuteClick}
               onVideoClose={handleVideoClose}
               designHeight={DESIGN_HEIGHT}
+              daytime={Daytime}
             />
           </div>
         </div>

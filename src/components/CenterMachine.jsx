@@ -5,7 +5,7 @@ import SnackTile from './SnackTile';
 
 const REPOS_WITH_VIDEO = new Set(['Grafika-projekat', 'Optimal_block_packing', 'Tavern_Tower', 'score_sheet']);
 
-function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose, designHeight }) {
+function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose, designHeight, daytime }) {
   const [chutePressed, setChutePressed] = useState(false);
   // Use design-space height so drop target stays correct when window is resized
   const dropTargetY = (designHeight ?? window.innerHeight) * 0.9;
@@ -60,6 +60,10 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
         <div className="vending-machine-bottom" style={{position: 'absolute', left: 0, bottom: 0, width: '100%', height: 'calc(var(--design-vh, 1vh) * 100)', zIndex: 9999, pointerEvents: 'none', userSelect: 'none'}} />
           
         <div className="snack-box">
+
+          {/* Ceiling light sources — hidden in daytime */}
+          {!daytime && <div className="snack-light snack-light--left" />}
+          {!daytime && <div className="snack-light snack-light--right snack-light--flicker" />}
           {/* Left side: Projects (snack) */}
           <div className="projects-section" role="region" aria-label="Project tiles">
             {loading && (
