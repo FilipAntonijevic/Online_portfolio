@@ -19,10 +19,10 @@ function LeftColumn() {
         src="/images/rest/Poster.png"
         alt=""
           style={{
-            width: '50%',
+            width: '58%',
             height: 'auto',
             display: 'block',
-            transform: 'translate(10%, -35%)',
+            transform: 'translate(5%, -30%)',
           }}
       />
 
@@ -42,7 +42,7 @@ function LeftColumn() {
       <a href="mailto:filipdantonijevic@gmail.com" style={{ position: 'absolute', right: '68%', top: '85%', width: '20%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block', transform: 'translateY(-50%) rotate(8deg)' }}>
         <img
           src="/images/rest/Mail.png"
-          alt="Email"
+          alt=""
           style={{
             width: '100%',
             height: 'auto',
@@ -52,7 +52,8 @@ function LeftColumn() {
         />
       </a>
 
-      <a href="https://www.linkedin.com/in/filip-antonijevic-bbb3923a6/" target="_blank" rel="noopener noreferrer" style={{ position: 'absolute', right: '10%', top: '63%', width: '14%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block' }}>
+      <a href="https://www.linkedin.com/in/filip-antonijevic-bbb3923a6/" target="_blank" rel="noopener noreferrer" 
+      style={{ position: 'absolute', right: '10%', top: '67%', width: '14%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block' }}>
         <img
           src="/images/rest/Linkedin_graffiti.png"
           alt=""
@@ -70,8 +71,8 @@ function LeftColumn() {
         alt=""
         style={{
           position: 'absolute',
-          right: '71%',
-          top: '39%',
+          right: '75%',
+          top: '37%',
           transform: 'translateY(-50%)',
           width: '30%',
           height: 'auto',

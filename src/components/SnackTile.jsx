@@ -19,6 +19,7 @@ function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect 
   const overlayTileRef = useRef(null);
 
   const handleProjectClick = async (...args) => {
+    if (!repo) return;
     const now = Date.now();
     if (now - lastGlobalProjectClick < TILE_CLICK_TIMEOUT) return;
     lastGlobalProjectClick = now;
@@ -76,7 +77,7 @@ function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect 
   return (
     <div
       className="snack-tile"
-      style={{ ...style, position: 'relative', cursor: 'pointer' }}
+      style={{ ...style, position: 'relative', cursor: repo ? 'pointer' : 'default' }}
       onMouseEnter={handleProjectHoverEnter}
       onMouseLeave={handleProjectHoverLeave}
       onClick={handleProjectClick}
