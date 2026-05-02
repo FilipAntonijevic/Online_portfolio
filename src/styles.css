@@ -282,6 +282,47 @@ img {
     display: none !important;
   }
 
+  /* Scanline / CRT mask overlay */
+  :root {
+    --scanline-thickness: 1px;
+    --scanline-gap: 3px; /* distance between start of one dark line and the next */
+    --scanline-opacity: 0.12; /* darkness of the scanline */
+    --scanline-blend: multiply; /* blend mode to use */
+  }
+
+  .scanline-mask {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40; /* above video but below interactive UI if necessary */
+    mix-blend-mode: var(--scanline-blend);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,var(--scanline-opacity)) 0,
+      rgba(0,0,0,var(--scanline-opacity)) var(--scanline-thickness),
+      rgba(0,0,0,0) var(--scanline-thickness),
+      rgba(0,0,0,0) calc(var(--scanline-gap))
+    );
+    background-size: 100% calc(var(--scanline-thickness) + var(--scanline-gap));
+    will-change: opacity, background-position;
+    opacity: 0.95;
+    filter: contrast(1.05) saturate(0.98);
+  }
+
+  /* subtle flicker to mimic CRT, disabled for reduced-motion */
+  @keyframes scanlineFlicker {
+    0% { opacity: 0.92; }
+    4% { opacity: 1; }
+    7% { opacity: 0.88; }
+    100% { opacity: 0.95; }
+  }
+
+  .scanline-mask { animation: scanlineFlicker 0.25s infinite; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scanline-mask { animation: none !important; }
+  }
+
   .screen-placeholder {
     width: 100%;
     height: 100%;

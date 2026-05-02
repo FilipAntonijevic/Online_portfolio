@@ -3,10 +3,14 @@ import ProjectTile from './ProjectTile';
 import Spring from './Spring';
 import SnackTile from './SnackTile';
 
+const REPOS_WITH_VIDEO = new Set(['Grafika-projekat', 'Optimal_block_packing', 'Tavern_Tower', 'score_sheet']);
+
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose }) {
   const [chutePressed, setChutePressed] = useState(false);
   const [dropTargetY, setDropTargetY] = useState(window.innerHeight * 0.9);
   const [postSequenceActive, setPostSequenceActive] = useState(false);
+  const [noVideoStaticActive, setNoVideoStaticActive] = useState(false);
+  const prevShowDescriptionRef = useRef(false);
 
   useEffect(() => {
     function updateDropTargetY() {
@@ -21,6 +25,22 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
     // reset pressed state when droppedRepo changes so animation can run again
     setChutePressed(false);
   }, [droppedRepo]);
+
+  // Detect description end → play static for repos without a video
+  useEffect(() => {
+    const prev = prevShowDescriptionRef.current;
+    prevShowDescriptionRef.current = showDescription;
+    if (prev === true && showDescription === false && selectedRepo && !REPOS_WITH_VIDEO.has(selectedRepo.name)) {
+      setNoVideoStaticActive(true);
+      setPostSequenceActive(false);
+    }
+  }, [showDescription, selectedRepo]);
+
+  // Reset per-repo state when a new project is selected
+  useEffect(() => {
+    setNoVideoStaticActive(false);
+    setPostSequenceActive(false);
+  }, [selectedRepo]);
 
   const handleChuteClick = (e) => {
     setChutePressed(true);
@@ -116,6 +136,21 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                         })()}
                       </div>
                     </div>
+                  ) : noVideoStaticActive ? (
+                    <video
+                      key="no-video-static"
+                      autoPlay
+                      muted
+                      playsInline
+                      controlsList="nodownload nofullscreen noremoteplayback"
+                      disablePictureInPicture
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onEnded={() => { setNoVideoStaticActive(false); setPostSequenceActive(true); }}
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
+                      <source src="/videos/TV STATIC (4K 60FPS).mp4" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
                   ) : selectedRepo && selectedRepo.name === 'Grafika-projekat' ? (
                     <video
                       key="mamuti-video"
@@ -183,6 +218,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                   ) : (
                     postSequenceActive ? <LoopingSequenceVideo initialPhase="static" /> : <LoopingSequenceVideo />
                   )}
+                  <div className="scanline-mask" aria-hidden="true"></div>
                 </div>
               </div>
       </div>

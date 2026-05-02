@@ -39,7 +39,7 @@ function LeftColumn() {
         />
       </a>
 
-      <a href="mailto:filipdantonijevic@gmail.com" style={{ position: 'absolute', right: '57%', top: '85%', width: '20%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block', transform: 'translateY(-50%) rotate(8deg)' }}>
+      <a href="mailto:filipdantonijevic@gmail.com" style={{ position: 'absolute', right: '68%', top: '85%', width: '20%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block', transform: 'translateY(-50%) rotate(8deg)' }}>
         <img
           src="/images/rest/Mail.png"
           alt="Email"
