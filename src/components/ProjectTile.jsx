@@ -5,6 +5,7 @@ const CLONE_TILT_DURATION = 200;
 const CLONE_SCALE_DURATION = 500;
 
 import React, { useState, useRef, useImperativeHandle, forwardRef } from 'react';
+import ReactDOM from 'react-dom';
 import { imageRepos } from '../includedProjects';
 
 const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, style, overlay, fallDuration }, ref) {
@@ -60,7 +61,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
   
 
 
-  // Per-image scale overrides (e.g. reduce Tavern_Tower by 10% -> 0.9)
+  // Per-image scale overrides 
   // Use keys that exactly match `repo.name` values used below
   const imgScales = {
     Tavern_Tower: 1.1,
@@ -144,11 +145,11 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
           )}
         </>
         )}
-      </div>      {/* Render clones that will animate and drop */}
+      </div>      {/* Render clones via portal to document.body so position:fixed works
+               correctly even though the app is inside a transform:scale() container */}
       {clones.map(clone => {
-        // Pad do fiksnog Y (95% visine ekrana - visina/2)
         const targetY = clone.dropY ?? 0;
-        return (
+        return ReactDOM.createPortal(
           <div
             key={clone.id}
             className={`project-tile project-tile-clone${clone.dropping ? ' dropping' : ''} ${imageRepos.has(repo.name) ? 'project-tile-image' : ''}`}
@@ -218,7 +219,9 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
                 )}
               </>
             )}
-          </div>
+          </div>,
+          document.body,
+          clone.id
         );
       })}
     </>

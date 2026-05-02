@@ -5,21 +5,13 @@ import SnackTile from './SnackTile';
 
 const REPOS_WITH_VIDEO = new Set(['Grafika-projekat', 'Optimal_block_packing', 'Tavern_Tower', 'score_sheet']);
 
-function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose }) {
+function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose, designHeight }) {
   const [chutePressed, setChutePressed] = useState(false);
-  const [dropTargetY, setDropTargetY] = useState(window.innerHeight * 0.9);
+  // Use design-space height so drop target stays correct when window is resized
+  const dropTargetY = (designHeight ?? window.innerHeight) * 0.9;
   const [postSequenceActive, setPostSequenceActive] = useState(false);
   const [noVideoStaticActive, setNoVideoStaticActive] = useState(false);
   const prevShowDescriptionRef = useRef(false);
-
-  useEffect(() => {
-    function updateDropTargetY() {
-      setDropTargetY(window.innerHeight * 0.9);
-    }
-    updateDropTargetY();
-    window.addEventListener('resize', updateDropTargetY);
-    return () => window.removeEventListener('resize', updateDropTargetY);
-  }, []);
 
   useEffect(() => {
     // reset pressed state when droppedRepo changes so animation can run again
@@ -65,7 +57,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
   return (
     <main className="column center-column">
       <div className="vending-machine" style={{position: 'relative'}}>
-        <div className="vending-machine-bottom" style={{position: 'absolute', left: 0, bottom: 0, width: '100%', height: '100vh', zIndex: 9999, pointerEvents: 'none', userSelect: 'none'}} />
+        <div className="vending-machine-bottom" style={{position: 'absolute', left: 0, bottom: 0, width: '100%', height: 'calc(var(--design-vh, 1vh) * 100)', zIndex: 9999, pointerEvents: 'none', userSelect: 'none'}} />
           
         <div className="snack-box">
           {/* Left side: Projects (snack) */}

@@ -3,11 +3,6 @@ img {
   user-select: none;
   -webkit-user-drag: none;
 }
-@media (min-width: 1025px) {
-  body {
-    overflow-y: hidden;
-  }
-}
 /* ===================================
     CSS Variables - Customize colors and spacing here
     =================================== */
@@ -35,7 +30,7 @@ img {
     --column-width: 240px;
     --machine-max-width: 900px;
     --border-radius: 8px;
-    --tile-size: clamp(60px, 8vw, 103px);
+    --tile-size: clamp(60px, calc(var(--design-vw, 1vw) * 8), 103px);
     --tile-gap: 1rem;
     --row-gap: calc(1.2rem); 
     --chute-width: 93%; /* width of the chute area relative to its container */
@@ -62,13 +57,7 @@ img {
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image: url('/images/rest/Wall.png');
-     /* Stretch the background to fill the viewport (width + height),
-       bottom edge remains anchored */
-     background-size: 100vw 100vh;
-     background-position: center bottom;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    /* Background is handled by the outer fixed container in App.jsx */
     color: var(--color-text);
     line-height: 1.6;
     min-height: 100vh;
@@ -79,7 +68,7 @@ img {
     Main Layout
     =================================== */
   .app {
-    min-height: 100vh;
+    height: 100%;
     padding: 0 var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
   }
 
@@ -155,14 +144,14 @@ img {
     max-width: var(--machine-max-width);
     margin: 0 auto;
     background-image: url('/images/rest/Vending_machine.png');
-    background-size: 120% 100vh; /* restore previous size */
+    background-size: 120% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;
     background-position: center top;
     background-color: transparent;
     border-radius: var(--border-radius);
     box-shadow: none;
     position: relative;
-    min-height: 100vh; /* restore previous min-height */
+    min-height: calc(var(--design-vh, 1vh) * 100);
     /*outline: 2px solid blue; /* Vending machine outline */
     padding: 3.9rem 0rem 6.5rem 1.5rem; /* restore original padding */
     display: flex; /* layout: snack-box + control */
@@ -173,14 +162,14 @@ img {
     max-width: var(--machine-max-width);
     margin: 0 auto;
     background-image: url('/images/rest/Vending_machine_bottom.png');
-    background-size: 120% 100vh; 
+    background-size: 120% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;/* prevent tiling */
     background-position: center top;
     background-color: transparent;
     border-radius: var(--border-radius);
     box-shadow: none;
     position: relative;
-    min-height: 100vh;
+    min-height: calc(var(--design-vh, 1vh) * 100);
     padding: 2.4rem 0rem 6.5rem 1.5rem; 
     display: flex; 
     align-items: stretch;
@@ -673,88 +662,6 @@ img {
     to {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
-    }
-  }
-
-  /* ===================================
-    Responsive Design
-    =================================== */
-
-  /* Tablet */
-  @media (max-width: 1024px) {
-    .container {
-      grid-template-columns: 200px 1fr 200px;
-      gap: var(--spacing-lg);
-    }
-    
-    :root {
-      --column-width: 200px;
-    }
-  }
-
-  /* Mobile */
-  @media (max-width: 768px) {
-    .app {
-      padding: var(--spacing-sm);
-    }
-    
-    .container {
-      grid-template-columns: 1fr;
-      gap: var(--spacing-md);
-    }
-    
-    .left-column,
-    .right-column {
-      position: static;
-    }
-    
-    :root {
-      --tile-gap: 0.6rem;
-    }
-    
-    .project-grid {
-      grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-    }
-    
-    .machine-title {
-      font-size: 1.5rem;
-    }
-    
-    /* Mobile: stack the vending-machine children vertically */
-    .vending-machine {
-      flex-direction: column;
-      min-height: auto;
-    }
-    
-    .projects-section {
-      flex: 1;
-    }
-    
-    .video-screen {
-      flex: 0 0 auto;
-      width: 100%;
-      margin-top: var(--spacing-md);
-    }
-    
-    .screen-frame {
-      aspect-ratio: 16 / 9;
-    }
-  }
-
-  @media (max-width: 480px) {
-    /* small screens will rely on clamp() for --tile-size */
-    
-    .project-grid {
-      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-    }
-    
-    .project-name {
-      font-size: 0.75rem;
-    }
-    
-    .project-tooltip {
-      max-width: 200px;
-      font-size: 0.8rem;
     }
   }
 

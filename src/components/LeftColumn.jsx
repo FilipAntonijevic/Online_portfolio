@@ -6,7 +6,7 @@ function LeftColumn() {
       className="left-column"
       style={{
         flex: 1,
-        height: '100vh',
+        height: 'calc(var(--design-vh, 1vh) * 100)',
         boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'center',
