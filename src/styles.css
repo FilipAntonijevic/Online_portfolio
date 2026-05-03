@@ -142,8 +142,8 @@ img {
   .vending-machine {
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine.png');
-    background-size: 120% calc(var(--design-vh, 1vh) * 100);
+    background-image: url('/images/rest/Vending_machine3.png');
+    background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;
     background-position: center top;
     background-color: transparent;
@@ -160,8 +160,8 @@ img {
   .vending-machine-bottom{
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine_bottom2.png');
-    background-size: 120% calc(var(--design-vh, 1vh) * 100);
+    background-image: url('/images/rest/Vending_machine_bottom3.png');
+    background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;/* prevent tiling */
     background-position: center top;
     background-color: transparent;
@@ -182,7 +182,7 @@ img {
     justify-content: flex-start;
     /*border: 2px solid red; /* Snack (glass) border */
     border-radius: var(--border-radius);
-    padding: 3rem 1.5rem 0rem 1rem; 
+    padding: 0.6rem 1.5rem 0rem 1rem; 
     flex: 1 1 auto; 
     box-sizing: border-box;
     background: transparent;
@@ -556,7 +556,7 @@ img {
   /* Shared bulb + cone styles */
   .snack-light {
     position: absolute;
-    top: 4%;
+    top: 1%;
     width: 20px;
     height: 2px;
     border-radius: 50%;

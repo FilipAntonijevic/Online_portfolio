@@ -8,8 +8,8 @@ import './styles.css';
 // regardless of what window size the page was opened in.
 const DESIGN_WIDTH  = window.screen.availWidth  || window.innerWidth;
 const DESIGN_HEIGHT = window.screen.availHeight || window.innerHeight;
-document.documentElement.style.setProperty('--design-vw', `${DESIGN_WIDTH  / 100}px`);
-document.documentElement.style.setProperty('--design-vh', `${DESIGN_HEIGHT / 100}px`);
+// NOTE: --design-vw / --design-vh are set inside the resize useEffect below,
+// not at module level, so they only apply when App (desktop) is actually mounted.
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Configuration - Edit these values to customize
@@ -41,6 +41,10 @@ function App() {
       // Pin to bottom: content always sits at the bottom of the viewport
       const top  = window.innerHeight - DESIGN_HEIGHT * s;
       setLayout({ scale: s, left, top });
+      // Set CSS variables here (not at module level) so they only affect
+      // the DOM when App (desktop) is actually mounted and rendering.
+      document.documentElement.style.setProperty('--design-vw', `${DESIGN_WIDTH  / 100}px`);
+      document.documentElement.style.setProperty('--design-vh', `${DESIGN_HEIGHT / 100}px`);
     }
     handleResize();
     window.addEventListener('resize', handleResize);
@@ -70,6 +74,8 @@ function App() {
         const headers = {};
         const names = includedProjects.slice(0, MAX_PROJECTS);
 
+        const token = import.meta.env.VITE_GITHUB_TOKEN;
+        if (token) headers['Authorization'] = `Bearer ${token}`;
         const fetchPromises = names.map(async (name) => {
           try {
             const resp = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${name}`, { headers });
