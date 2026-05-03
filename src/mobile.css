@@ -21,7 +21,6 @@
   position: relative;
   width: min(100vw, calc(100vh * 900 / 1080));
   height: min(100vh, calc(100vw * 1080 / 900));
-  overflow: hidden;
   flex-shrink: 0;
 }
 

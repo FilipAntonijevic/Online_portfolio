@@ -103,6 +103,7 @@ function MobileApp() {
 
   const panelOuterRefs  = useRef([null, null, null, null]);
   const panelInnerRefs  = useRef([null, null, null, null]);
+  const carouselRef     = useRef(null);
   const dotRef          = useRef(null);
   const labelRefs       = useRef([null, null, null, null]);
   const areaRef         = useRef(null);
@@ -115,32 +116,25 @@ function MobileApp() {
   const dirRef      = useRef(null); // null | 'h' | 'v'
 
   function applyAngle(ang) {
-    const W     = containerWRef.current;
-    const norm  = ((ang % 360) + 360) % 360;
-    const seg   = Math.floor(norm / 90);
-    const t     = (norm % 90) / 90;
-    const PERSP = W * 2;
-    const MAX_R = 80;
-    const idxA  = seg;           // outgoing: right-hinge, stays at x=0
-    const idxB  = (seg + 1) % 4; // incoming: left-hinge, slides in from right
+    const W    = containerWRef.current;
+    const norm = ((ang % 360) + 360) % 360;
+    const seg  = Math.floor(norm / 90);
 
+    // Rotate the whole 3D box
+    if (carouselRef.current) {
+      carouselRef.current.style.transform = `translateZ(${-W / 2}px) rotateY(${-ang}deg)`;
+    }
+
+    // Position each panel as a face of the box
     for (let i = 0; i < 4; i++) {
       const outer = panelOuterRefs.current[i];
       const inner = panelInnerRefs.current[i];
-      if (!outer || !inner) continue;
-
-      if (i === idxA) {
-        outer.style.display         = 'block';
-        outer.style.transform       = `translateX(${-t * W}px)`;
-        inner.style.transformOrigin = 'right center';
-        inner.style.transform       = `perspective(${PERSP}px) rotateY(-${t * MAX_R}deg)`;
-      } else if (i === idxB) {
-        outer.style.display         = 'block';
-        outer.style.transform       = `translateX(${(1 - t) * W}px)`;
-        inner.style.transformOrigin = 'left center';
-        inner.style.transform       = `perspective(${PERSP}px) rotateY(${(1 - t) * MAX_R}deg)`;
-      } else {
-        outer.style.display = 'none';
+      if (!outer) continue;
+      outer.style.transform       = `rotateY(${i * 90}deg) translateZ(${W / 2}px)`;
+      outer.style.transformOrigin = '';
+      if (inner) {
+        inner.style.transform       = '';
+        inner.style.transformOrigin = '';
       }
     }
 
@@ -244,24 +238,30 @@ function MobileApp() {
       <div
         ref={areaRef}
         className="mobile-machine-area"
+        style={{ perspective: `${containerW * 2}px` }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* All 4 panels always in DOM. Visibility controlled imperatively via refs. */}
-        {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            ref={el => { panelOuterRefs.current[i] = el; }}
-            style={{ position: 'absolute', top: 0, left: 0, width: containerW, height: '100%', willChange: 'transform' }}
-          >
+        <div
+          ref={carouselRef}
+          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transformStyle: 'preserve-3d' }}
+        >
+          {/* All 4 panels always in DOM. */}
+          {[0, 1, 2, 3].map(i => (
             <div
-              ref={el => { panelInnerRefs.current[i] = el; }}
-              style={{ width: '100%', height: '100%', overflow: 'hidden', position: 'relative', willChange: 'transform' }}
+              key={i}
+              ref={el => { panelOuterRefs.current[i] = el; }}
+              style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', willChange: 'transform', backfaceVisibility: 'hidden' }}
             >
-              {renderPanel(i)}
+              <div
+                ref={el => { panelInnerRefs.current[i] = el; }}
+                style={{ width: '100%', height: '100%', position: 'relative' }}
+              >
+                {renderPanel(i)}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Compass indicator — updated imperatively via refs */}
