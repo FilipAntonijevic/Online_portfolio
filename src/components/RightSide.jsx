@@ -65,7 +65,7 @@ function RightSide({ onSwipeToFront }) {
             style={{
             position: 'absolute',
             left: '0%',
-            top: '66%',
+            top: '55%',
             width: '40%',
             height: 'auto',
             zIndex: 20,
