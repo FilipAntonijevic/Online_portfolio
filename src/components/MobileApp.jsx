@@ -1,5 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import LeftSide from './LeftSide';
+import RightSide from './RightSide';
+import BackSide from './BackSide';
 import CenterMachine from './CenterMachine';
 import '../styles.css';
 import '../mobile.css';
@@ -83,136 +85,159 @@ function MobileApp() {
   const containerW   = Math.min(window.innerWidth, window.innerHeight * MACHINE_NATURAL_W / MACHINE_NATURAL_H);
   const machineScale = containerW / MACHINE_NATURAL_W;
 
-  // ── Swipe / sliding-track state ───────────────────────────────────────────
-  // Two panels sit side-by-side in a track of width 2×containerW.
-  // offset=0          → LeftSide (side panel) fills the viewport
-  // offset=-containerW → CenterMachine (front panel) fills the viewport
-  // While dragging, offset follows the finger in real time.
-  // On release: if M-edge (right edge of side panel) crossed the midpoint
-  //   → snap to front; otherwise snap back to side.
+  const containerWRef = useRef(containerW);
+  containerWRef.current = containerW;
 
-  const [face,        setFace]        = useState('side');
-  const [offset,      setOffset]      = useState(0);
-  const [isSnapping,  setIsSnapping]  = useState(false);
+  // ── 4-panel carousel — ZERO React state for rotation ─────────────────────
+  // All 4 panels are always in the DOM. applyAngle() shows the correct 2 and
+  // hides the other 2 via imperative DOM writes. No setState ever fires during
+  // a swipe gesture, so React never re-renders mid-swipe.
+  //
+  // Each panel has two DOM levels:
+  //   outer (panelOuterRefs[i]): handles X-translation (translateX) via transform
+  //   inner (panelInnerRefs[i]): handles perspective + rotateY
+  //
+  // Panels: 0=Front, 1=Right, 2=Back, 3=Left
 
-  const areaRef        = useRef(null);
-  const startXRef      = useRef(null);
-  const startYRef      = useRef(null);
-  const isHoriz        = useRef(false);
-  const faceRef        = useRef('side');   // shadow so touchmove closure stays current
-  const offsetRef      = useRef(0);        // same for offset
-  const isSnappingRef  = useRef(false);    // block input during snap
+  const visualAngleRef  = useRef(270);
 
-  useEffect(() => { faceRef.current     = face;      }, [face]);
-  useEffect(() => { isSnappingRef.current = isSnapping; }, [isSnapping]);
-  useEffect(() => { offsetRef.current = offset; }, [offset]);
+  const panelOuterRefs  = useRef([null, null, null, null]);
+  const panelInnerRefs  = useRef([null, null, null, null]);
+  const dotRef          = useRef(null);
+  const labelRefs       = useRef([null, null, null, null]);
+  const areaRef         = useRef(null);
 
-  // Attach non-passive touchmove so we can preventDefault (blocks page scroll)
+  // Touch state — all refs, never React state
+  const touchActive = useRef(false);
+  const startXRef   = useRef(0);
+  const startYRef   = useRef(0);
+  const prevXRef    = useRef(0);
+  const dirRef      = useRef(null); // null | 'h' | 'v'
+
+  function applyAngle(ang) {
+    const W     = containerWRef.current;
+    const norm  = ((ang % 360) + 360) % 360;
+    const seg   = Math.floor(norm / 90);
+    const t     = (norm % 90) / 90;
+    const PERSP = W * 2;
+    const MAX_R = 80;
+    const idxA  = seg;           // outgoing: right-hinge, stays at x=0
+    const idxB  = (seg + 1) % 4; // incoming: left-hinge, slides in from right
+
+    for (let i = 0; i < 4; i++) {
+      const outer = panelOuterRefs.current[i];
+      const inner = panelInnerRefs.current[i];
+      if (!outer || !inner) continue;
+
+      if (i === idxA) {
+        outer.style.display         = 'block';
+        outer.style.transform       = `translateX(${-t * W}px)`;
+        inner.style.transformOrigin = 'right center';
+        inner.style.transform       = `perspective(${PERSP}px) rotateY(-${t * MAX_R}deg)`;
+      } else if (i === idxB) {
+        outer.style.display         = 'block';
+        outer.style.transform       = `translateX(${(1 - t) * W}px)`;
+        inner.style.transformOrigin = 'left center';
+        inner.style.transform       = `perspective(${PERSP}px) rotateY(${(1 - t) * MAX_R}deg)`;
+      } else {
+        outer.style.display = 'none';
+      }
+    }
+
+    // Compass dot + labels — imperative, no React
+    if (dotRef.current) {
+      const rad = (norm - 90) * Math.PI / 180;
+      dotRef.current.setAttribute('cx', Math.cos(rad) * 22);
+      dotRef.current.setAttribute('cy', Math.sin(rad) * 22);
+    }
+    labelRefs.current.forEach((el, i) => {
+      if (!el) return;
+      el.setAttribute('fill',        seg === i ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.28)');
+      el.setAttribute('font-weight', seg === i ? 'bold' : 'normal');
+    });
+
+    visualAngleRef.current = ang;
+  }
+
+  // Apply initial transforms before first paint (no flash of all-4-panels)
+  useLayoutEffect(() => { applyAngle(270); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-apply on orientation/resize (containerW changed)
+  useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // touchmove — registered ONCE, reads all dynamic values via refs
   useEffect(() => {
     const el = areaRef.current;
     if (!el) return;
     function onMove(e) {
-      if (isSnappingRef.current) return;
-      if (startXRef.current === null) return;
-      const dx = e.touches[0].clientX - startXRef.current;
-      const dy = e.touches[0].clientY - startYRef.current;
-      // First decisive move: decide axis
-      if (!isHoriz.current) {
-        if (Math.abs(dy) > Math.abs(dx)) { startXRef.current = null; return; }
-        isHoriz.current = true;
+      if (!touchActive.current) return;
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      if (dirRef.current === null) {
+        const dx = Math.abs(currentX - startXRef.current);
+        const dy = Math.abs(currentY - startYRef.current);
+        if (dx < 4 && dy < 4) return;
+        dirRef.current   = dx >= dy ? 'h' : 'v';
+        prevXRef.current = currentX;
+        if (dirRef.current === 'h') e.preventDefault();
+        return;
       }
+      if (dirRef.current === 'v') return;
       e.preventDefault();
-      const base = faceRef.current === 'side' ? 0 : -containerW;
-      // Clamp: side panel can only go left; front panel can only go right
-      const clamped = faceRef.current === 'side'
-        ? Math.max(-containerW, Math.min(0, dx))
-        : Math.max(0, Math.min(containerW, dx));
-      setOffset(base + clamped);
+      const delta = prevXRef.current - currentX; // left = clockwise
+      prevXRef.current = currentX;
+      applyAngle(visualAngleRef.current + delta * (90 / containerWRef.current));
     }
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
-  }, [containerW]);
+  }, []); // empty deps — registered once, never re-registered
 
   function handleTouchStart(e) {
-    if (isSnappingRef.current) return;
-    startXRef.current  = e.touches[0].clientX;
-    startYRef.current  = e.touches[0].clientY;
-    isHoriz.current    = false;
+    touchActive.current = true;
+    startXRef.current   = e.touches[0].clientX;
+    startYRef.current   = e.touches[0].clientY;
+    prevXRef.current    = e.touches[0].clientX;
+    dirRef.current      = null;
   }
 
-  function handleTouchEnd(e) {
-    if (startXRef.current === null) return;
-    startXRef.current = null;
-    if (!isHoriz.current) return;          // was a vertical swipe, nothing to do
-
-    const w         = containerW;
-    const base      = faceRef.current === 'side' ? 0 : -w;
-    const moved     = offsetRef.current - base;   // how far from rest position
-    let targetOffset;
-    let newFace = faceRef.current;
-
-    if (faceRef.current === 'side'  && moved < -w / 2) { targetOffset = -w; newFace = 'front'; }
-    else if (faceRef.current === 'front' && moved >  w / 2) { targetOffset =  0; newFace = 'side';  }
-    else { targetOffset = base; }   // not far enough → snap back
-
-    // Phase 1: enable transition (offset stays at current drag position)
-    setIsSnapping(true);
-    // Phase 2: one frame later, update offset → CSS transition fires from current → target
-    requestAnimationFrame(() => {
-      setOffset(targetOffset);
-      setTimeout(() => {
-        setFace(newFace);
-        setIsSnapping(false);
-      }, 600);
-    });
+  function handleTouchEnd() {
+    touchActive.current = false;
+    dirRef.current      = null;
   }
 
   function snapToFront() {
-    if (faceRef.current === 'front') return;
-    setIsSnapping(true);
-    requestAnimationFrame(() => {
-      setOffset(-containerW);
-      setTimeout(() => {
-        setFace('front');
-        setIsSnapping(false);
-      }, 320);
-    });
+    applyAngle(Math.round(visualAngleRef.current / 360) * 360);
   }
 
-  // 3-D rotation illusion: always applied based on progress so it animates during snap.
-  // At rest: visible panel always has progress=0 → rotateY(0°) = flat.
-  // Off-screen panel has progress=1 but is not visible so doesn't matter.
-  const MAX_ROTATE    = 80;
-  const PERSP         = containerW * 2;
-  // sideProgress: 0 = side fully facing viewer, 1 = side rotated away (front visible)
-  const sideProgress  = Math.min(1, Math.max(0, -offset / containerW));
-  // frontProgress: 0 = front fully facing viewer, 1 = front rotated away (side visible)
-  const frontProgress = Math.min(1, Math.max(0, (offset + containerW) / containerW));
-  const panelTransition = isSnapping ? 'transform 320ms ease' : 'none';
-
-  // rotateY(+θ) with origin=right  → left edge goes away from viewer → appears shorter ✓
-  const sidePanelStyle = {
-    width:           containerW,
-    height:          '100%',
-    flexShrink:      0,
-    overflow:        'hidden',
-    position:        'relative',
-    transformOrigin: 'right center',
-    transform:       `perspective(${PERSP}px) rotateY(-${sideProgress * MAX_ROTATE}deg)`,
-    transition:      panelTransition,
-  };
-
-  // rotateY(-θ) with origin=left  → right edge goes away from viewer → appears shorter ✓
-  const frontPanelStyle = {
-    width:           containerW,
-    height:          '100%',
-    flexShrink:      0,
-    overflow:        'hidden',
-    position:        'relative',
-    transformOrigin: 'left center',
-    transform:       `perspective(${PERSP}px) rotateY(${frontProgress * MAX_ROTATE}deg)`,
-    transition:      panelTransition,
-  };
+  // Panel content — these never cause rotation re-renders
+  function renderPanel(i) {
+    switch (i) {
+      case 0:
+        return (
+          <div className="mobile-front-scaler" data-scaler="true" style={{
+            transformOrigin: 'top left',
+            transform:       `scale(${machineScale})`,
+            width:           MACHINE_NATURAL_W,
+            height:          MACHINE_NATURAL_H,
+            '--design-vh':   `${MACHINE_NATURAL_H / 100}px`,
+            '--design-vw':   `${MACHINE_DESIGN_VW}px`,
+          }}>
+            <CenterMachine
+              repos={repos} loading={loading} error={error}
+              droppedRepo={droppedRepo} selectedRepo={selectedRepo}
+              showDescription={showDescription}
+              onProjectDrop={handleProjectDrop} onProjectSelect={handleProjectSelect}
+              onChuteClick={handleChuteClick} onVideoClose={handleVideoClose}
+              daytime={Daytime} designHeight={MACHINE_NATURAL_H}
+            />
+          </div>
+        );
+      case 1: return <RightSide onSwipeToFront={snapToFront} />;
+      case 2: return <BackSide />;
+      case 3:
+      default: return <LeftSide onSwipeToFront={snapToFront} />;
+    }
+  }
 
   return (
     <div className="mobile-app">
@@ -222,61 +247,46 @@ function MobileApp() {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* ── Sliding track ────────────────────────────────────────────── */}
-        <div style={{
-          display:    'flex',
-          width:      containerW * 2,
-          height:     '100%',
-          transform:  `translateX(${offset}px)`,
-          transition: isSnapping ? 'transform 320ms ease' : 'none',
-          willChange: 'transform',
-        }}>
-
-          {/* Side panel */}
-          <div style={sidePanelStyle}>
-            <img
-              src="/images/rest/Vending_machine_side3.png"
-              alt=""
-              className="mobile-machine-bg"
-            />
-            <img
-              src="/images/rest/Vending_machine_side_bottom3.png"
-              alt=""
-              className="mobile-machine-bg"
-              style={{ zIndex: 100 }}
-            />
-            <LeftSide onSwipeToFront={snapToFront} />
-          </div>
-
-          {/* Front panel */}
-          <div style={frontPanelStyle}>
-            <div className="mobile-front-scaler" data-scaler="true" style={{
-              transformOrigin: 'top left',
-              transform:  `scale(${machineScale})`,
-              width:      MACHINE_NATURAL_W,
-              height:     MACHINE_NATURAL_H,
-              '--design-vh': `${MACHINE_NATURAL_H / 100}px`,
-              '--design-vw': `${MACHINE_DESIGN_VW}px`,
-            }}>
-              <CenterMachine
-                repos={repos}
-                loading={loading}
-                error={error}
-                droppedRepo={droppedRepo}
-                selectedRepo={selectedRepo}
-                showDescription={showDescription}
-                onProjectDrop={handleProjectDrop}
-                onProjectSelect={handleProjectSelect}
-                onChuteClick={handleChuteClick}
-                onVideoClose={handleVideoClose}
-                daytime={Daytime}
-                designHeight={MACHINE_NATURAL_H}
-              />
+        {/* All 4 panels always in DOM. Visibility controlled imperatively via refs. */}
+        {[0, 1, 2, 3].map(i => (
+          <div
+            key={i}
+            ref={el => { panelOuterRefs.current[i] = el; }}
+            style={{ position: 'absolute', top: 0, left: 0, width: containerW, height: '100%', willChange: 'transform' }}
+          >
+            <div
+              ref={el => { panelInnerRefs.current[i] = el; }}
+              style={{ width: '100%', height: '100%', overflow: 'hidden', position: 'relative', willChange: 'transform' }}
+            >
+              {renderPanel(i)}
             </div>
           </div>
-        </div>
+        ))}
+      </div>
 
-
+      {/* Compass indicator — updated imperatively via refs */}
+      <div className="mobile-rotation-indicator">
+        <svg width="56" height="56" viewBox="-28 -28 56 56">
+          <circle r="22" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+          {[
+            { deg: 0,   label: 'F', i: 0 },
+            { deg: 90,  label: 'R', i: 1 },
+            { deg: 180, label: 'B', i: 2 },
+            { deg: 270, label: 'L', i: 3 },
+          ].map(({ deg, label, i }) => {
+            const rad = (deg - 90) * Math.PI / 180;
+            return (
+              <text key={deg}
+                ref={el => { labelRefs.current[i] = el; }}
+                x={Math.cos(rad) * 14} y={Math.sin(rad) * 14}
+                textAnchor="middle" dominantBaseline="middle"
+                fill="rgba(255,255,255,0.28)"
+                fontSize="7" fontFamily="monospace" fontWeight="normal"
+              >{label}</text>
+            );
+          })}
+          <circle ref={dotRef} cx="0" cy="-22" r="3.5" fill="rgba(255,255,255,0.85)" />
+        </svg>
       </div>
     </div>
   );
