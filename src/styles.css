@@ -197,7 +197,7 @@ img {
     gap: var(--spacing-sm);
     /*border: 2px solid gold; /* Snack-box wrapper outline (yellow) */
     border-radius: var(--border-radius);
-    padding: 0rem 1.5rem calc(1.3rem) 1rem; 
+    padding: 1.7rem 1.5rem calc(1.3rem) 1rem; 
     box-sizing: border-box;
   }
 

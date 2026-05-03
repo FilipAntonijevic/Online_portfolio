@@ -17,21 +17,31 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
     useImperativeHandle(ref, () => ({
     onProjectClick: () => {
       if (!tileRef.current) return;
-      const rect = tileRef.current.getBoundingClientRect();
 
       // Portal inside the App scaler so z-index works relative to vending-machine-bottom.
       const scaler = document.querySelector('[data-scaler="true"]');
       let appScale = 1;
-      let scalerRect = { top: 0, left: 0 };
       if (scaler) {
         appScale = new DOMMatrix(getComputedStyle(scaler).transform).a;
-        scalerRect = scaler.getBoundingClientRect();
       }
-      // Tile position in design (unscaled) space.
-      const designTop  = (rect.top  - scalerRect.top)  / appScale;
-      const designLeft = (rect.left - scalerRect.left) / appScale;
-      const designW = rect.width  / appScale;
-      const designH = rect.height / appScale;
+
+      // Walk the offsetParent chain to get position in design (unscaled) space,
+      // completely bypassing any 3D CSS transforms on ancestor panels.
+      function getOffsetWithin(el, ancestor) {
+        let top = 0, left = 0, curr = el;
+        while (curr && curr !== ancestor) {
+          top  += curr.offsetTop;
+          left += curr.offsetLeft;
+          curr  = curr.offsetParent;
+        }
+        return { top, left };
+      }
+
+      const pos = getOffsetWithin(tileRef.current, scaler);
+      const designTop  = pos.top;
+      const designLeft = pos.left;
+      const designW    = tileRef.current.offsetWidth;
+      const designH    = tileRef.current.offsetHeight;
 
       setScale(1.03);
       setTimeout(() => {
@@ -48,12 +58,15 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
           if (progress < 1) {
             requestAnimationFrame(animateScale);
           } else {
-            // Drop target: bottom edge of chute-area in design space.
-            // Falls back to 95% of viewport height if chute not found.
+            // Drop target: bottom edge of chute-area in design space (offset-based).
             const chuteEl = document.querySelector('.chute-area');
-            const chuteBottom = chuteEl
-              ? (chuteEl.getBoundingClientRect().bottom - scalerRect.top) / appScale
-              : window.innerHeight * 0.95 / appScale;
+            let chuteBottom;
+            if (chuteEl && scaler) {
+              const chutePos = getOffsetWithin(chuteEl, scaler);
+              chuteBottom = chutePos.top + chuteEl.offsetHeight;
+            } else {
+              chuteBottom = window.innerHeight * 0.95 / appScale;
+            }
             const dropY = chuteBottom - designTop - designH;
             requestAnimationFrame(() => {
               setClones(prev => prev.map(c => c.id === cloneId ? { ...c, dropping: true, dropY } : c));
