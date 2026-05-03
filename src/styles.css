@@ -142,7 +142,7 @@ img {
   .vending-machine {
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine4.png');
+    background-image: url('/images/rest/Vending_machine.png'); 
     background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;
     background-position: center top;
@@ -160,7 +160,7 @@ img {
   .vending-machine-bottom{
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine_bottoma3.png');
+    background-image: url('/images/rest/Vending_machine_bottom.png');
     background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;/* prevent tiling */
     background-position: center top;
@@ -168,6 +168,7 @@ img {
     border-radius: var(--border-radius);
     box-shadow: none;
     position: relative;
+    z-index: 9999;
     min-height: calc(var(--design-vh, 1vh) * 100);
     padding: 2.4rem 0rem 6.5rem 1.5rem; 
     display: flex; 

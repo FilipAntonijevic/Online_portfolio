@@ -3,6 +3,7 @@ import LeftSide from './components/LeftSide';
 import RightSide from './components/RightSide';
 import BackSide from './components/BackSide';
 import CenterMachine from './components/CenterMachine';
+import LoadingScreen from './components/LoadingScreen';
 import './styles.css';
 
 const GITHUB_USERNAME   = 'FilipAntonijevic';
@@ -236,8 +237,8 @@ function App() {
       case 0:
         return (
           <>
-            <img src="/images/rest/Vending_machine3.png" alt="" className="mobile-machine-bg" />
-            <img src="/images/rest/Vending_machine_bottom3.png" alt="" className="mobile-machine-bg" style={{ zIndex: 1 }} />
+            <img src="/images/rest/Vending_machine.png" alt="" className="mobile-machine-bg" />
+            <img src="/images/rest/Vending_machine_bottom.png" alt="" className="mobile-machine-bg" style={{ zIndex: 9999 }} />
             <div className="desktop-front-scaler" data-scaler="true" style={{
               transformOrigin: 'top left',
               transform:       `scale(${machineScale})`,
@@ -265,6 +266,8 @@ function App() {
       default: return <LeftSide onSwipeToFront={snapToFront} />;
     }
   }
+
+  if (loading) return <LoadingScreen />;
 
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#2a2a2a' }}>
