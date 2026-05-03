@@ -160,7 +160,7 @@ img {
   .vending-machine-bottom{
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine_bottom3.png');
+    background-image: url('/images/rest/Vending_machine_bottoma3.png');
     background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;/* prevent tiling */
     background-position: center top;

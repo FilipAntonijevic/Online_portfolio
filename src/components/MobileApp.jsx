@@ -82,11 +82,24 @@ function MobileApp() {
   const handleVideoClose = () => { setSelectedRepo(null); setShowDescription(false); };
 
   // ── Machine scale ─────────────────────────────────────────────────────────
-  const containerW   = Math.min(window.innerWidth, window.innerHeight * MACHINE_NATURAL_W / MACHINE_NATURAL_H);
+  const [containerW, setContainerW] = useState(() =>
+    Math.min(window.innerWidth, window.innerHeight * MACHINE_NATURAL_W / MACHINE_NATURAL_H)
+  );
+  const containerH   = containerW * MACHINE_NATURAL_H / MACHINE_NATURAL_W;
   const machineScale = containerW / MACHINE_NATURAL_W;
 
   const containerWRef = useRef(containerW);
   containerWRef.current = containerW;
+
+  useEffect(() => {
+    function onResize() {
+      const w = Math.min(window.innerWidth, window.innerHeight * MACHINE_NATURAL_W / MACHINE_NATURAL_H);
+      containerWRef.current = w;
+      setContainerW(w);
+    }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // ── 4-panel carousel — ZERO React state for rotation ─────────────────────
   // All 4 panels are always in the DOM. applyAngle() shows the correct 2 and
@@ -208,23 +221,29 @@ function MobileApp() {
     switch (i) {
       case 0:
         return (
-          <div className="mobile-front-scaler" data-scaler="true" style={{
-            transformOrigin: 'top left',
-            transform:       `scale(${machineScale})`,
-            width:           MACHINE_NATURAL_W,
-            height:          MACHINE_NATURAL_H,
-            '--design-vh':   `${MACHINE_NATURAL_H / 100}px`,
-            '--design-vw':   `${MACHINE_DESIGN_VW}px`,
-          }}>
-            <CenterMachine
-              repos={repos} loading={loading} error={error}
-              droppedRepo={droppedRepo} selectedRepo={selectedRepo}
-              showDescription={showDescription}
-              onProjectDrop={handleProjectDrop} onProjectSelect={handleProjectSelect}
-              onChuteClick={handleChuteClick} onVideoClose={handleVideoClose}
-              daytime={Daytime} designHeight={MACHINE_NATURAL_H}
-            />
-          </div>
+          <>
+            <img src="/images/rest/Vending_machine3.png" alt="" className="mobile-machine-bg" />
+            <img src="/images/rest/Vending_machine_bottom3.png" alt="" className="mobile-machine-bg" style={{ zIndex: 1 }} />
+            <div className="mobile-front-scaler" data-scaler="true" style={{
+              transformOrigin: 'top left',
+              transform:       `scale(${machineScale})`,
+              width:           MACHINE_NATURAL_W,
+              height:          MACHINE_NATURAL_H,
+              '--design-vh':   `${MACHINE_NATURAL_H / 100}px`,
+              '--design-vw':   `${MACHINE_DESIGN_VW}px`,
+              position:        'relative',
+              zIndex:          2,
+            }}>
+              <CenterMachine
+                repos={repos} loading={loading} error={error}
+                droppedRepo={droppedRepo} selectedRepo={selectedRepo}
+                showDescription={showDescription}
+                onProjectDrop={handleProjectDrop} onProjectSelect={handleProjectSelect}
+                onChuteClick={handleChuteClick} onVideoClose={handleVideoClose}
+                daytime={Daytime} designHeight={MACHINE_NATURAL_H}
+              />
+            </div>
+          </>
         );
       case 1: return <RightSide onSwipeToFront={snapToFront} />;
       case 2: return <BackSide />;
@@ -238,7 +257,7 @@ function MobileApp() {
       <div
         ref={areaRef}
         className="mobile-machine-area"
-        style={{ perspective: `${containerW * 2}px` }}
+        style={{ perspective: `${containerW * 2}px`, width: containerW, height: containerH }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -262,31 +281,31 @@ function MobileApp() {
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Compass indicator — updated imperatively via refs */}
-      <div className="mobile-rotation-indicator">
-        <svg width="56" height="56" viewBox="-28 -28 56 56">
-          <circle r="22" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
-          {[
-            { deg: 0,   label: 'F', i: 0 },
-            { deg: 90,  label: 'R', i: 1 },
-            { deg: 180, label: 'B', i: 2 },
-            { deg: 270, label: 'L', i: 3 },
-          ].map(({ deg, label, i }) => {
-            const rad = (deg - 90) * Math.PI / 180;
-            return (
-              <text key={deg}
-                ref={el => { labelRefs.current[i] = el; }}
-                x={Math.cos(rad) * 14} y={Math.sin(rad) * 14}
-                textAnchor="middle" dominantBaseline="middle"
-                fill="rgba(255,255,255,0.28)"
-                fontSize="7" fontFamily="monospace" fontWeight="normal"
-              >{label}</text>
-            );
-          })}
-          <circle ref={dotRef} cx="0" cy="-22" r="3.5" fill="rgba(255,255,255,0.85)" />
-        </svg>
+        {/* Compass indicator — absolute overlay, doesn't affect flex centering */}
+        <div className="mobile-rotation-indicator" style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
+          <svg width="56" height="56" viewBox="-28 -28 56 56">
+            <circle r="22" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
+            {[
+              { deg: 0,   label: 'F', i: 0 },
+              { deg: 90,  label: 'R', i: 1 },
+              { deg: 180, label: 'B', i: 2 },
+              { deg: 270, label: 'L', i: 3 },
+            ].map(({ deg, label, i }) => {
+              const rad = (deg - 90) * Math.PI / 180;
+              return (
+                <text key={deg}
+                  ref={el => { labelRefs.current[i] = el; }}
+                  x={Math.cos(rad) * 14} y={Math.sin(rad) * 14}
+                  textAnchor="middle" dominantBaseline="middle"
+                  fill="rgba(255,255,255,0.28)"
+                  fontSize="7" fontFamily="monospace" fontWeight="normal"
+                >{label}</text>
+              );
+            })}
+            <circle ref={dotRef} cx="0" cy="-22" r="3.5" fill="rgba(255,255,255,0.85)" />
+          </svg>
+        </div>
       </div>
     </div>
   );
