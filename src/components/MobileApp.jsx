@@ -95,14 +95,16 @@ function MobileApp() {
   const [offset,      setOffset]      = useState(0);
   const [isSnapping,  setIsSnapping]  = useState(false);
 
-  const areaRef     = useRef(null);
-  const startXRef   = useRef(null);
-  const startYRef   = useRef(null);
-  const isHoriz     = useRef(false);
-  const faceRef     = useRef('side');   // shadow so touchmove closure stays current
-  const offsetRef   = useRef(0);        // same for offset
+  const areaRef        = useRef(null);
+  const startXRef      = useRef(null);
+  const startYRef      = useRef(null);
+  const isHoriz        = useRef(false);
+  const faceRef        = useRef('side');   // shadow so touchmove closure stays current
+  const offsetRef      = useRef(0);        // same for offset
+  const isSnappingRef  = useRef(false);    // block input during snap
 
-  useEffect(() => { faceRef.current  = face;   }, [face]);
+  useEffect(() => { faceRef.current     = face;      }, [face]);
+  useEffect(() => { isSnappingRef.current = isSnapping; }, [isSnapping]);
   useEffect(() => { offsetRef.current = offset; }, [offset]);
 
   // Attach non-passive touchmove so we can preventDefault (blocks page scroll)
@@ -110,6 +112,7 @@ function MobileApp() {
     const el = areaRef.current;
     if (!el) return;
     function onMove(e) {
+      if (isSnappingRef.current) return;
       if (startXRef.current === null) return;
       const dx = e.touches[0].clientX - startXRef.current;
       const dy = e.touches[0].clientY - startYRef.current;
@@ -131,10 +134,10 @@ function MobileApp() {
   }, [containerW]);
 
   function handleTouchStart(e) {
+    if (isSnappingRef.current) return;
     startXRef.current  = e.touches[0].clientX;
     startYRef.current  = e.touches[0].clientY;
     isHoriz.current    = false;
-    setIsSnapping(false);
   }
 
   function handleTouchEnd(e) {
@@ -179,7 +182,7 @@ function MobileApp() {
   // 3-D rotation illusion: always applied based on progress so it animates during snap.
   // At rest: visible panel always has progress=0 → rotateY(0°) = flat.
   // Off-screen panel has progress=1 but is not visible so doesn't matter.
-  const MAX_ROTATE    = 60;
+  const MAX_ROTATE    = 80;
   const PERSP         = containerW * 2;
   // sideProgress: 0 = side fully facing viewer, 1 = side rotated away (front visible)
   const sideProgress  = Math.min(1, Math.max(0, -offset / containerW));
@@ -247,7 +250,7 @@ function MobileApp() {
 
           {/* Front panel */}
           <div style={frontPanelStyle}>
-            <div className="mobile-front-scaler" style={{
+            <div className="mobile-front-scaler" data-scaler="true" style={{
               transformOrigin: 'top left',
               transform:  `scale(${machineScale})`,
               width:      MACHINE_NATURAL_W,
@@ -273,10 +276,7 @@ function MobileApp() {
           </div>
         </div>
 
-        {/* Swipe hint */}
-        <div className={`mobile-swipe-hint ${face === 'front' ? 'hint-right' : 'hint-left'}`}>
-          {face === 'side' ? '‹' : '›'}
-        </div>
+
       </div>
     </div>
   );
