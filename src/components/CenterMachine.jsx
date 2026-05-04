@@ -3,7 +3,7 @@ import ProjectTile from './ProjectTile';
 import Spring from './Spring';
 import SnackTile from './SnackTile';
 
-const REPOS_WITH_VIDEO = new Set(['Grafika-projekat', 'Optimal_block_packing', 'Tavern_Tower', 'score_sheet']);
+const REPOS_WITH_VIDEO = new Set(['Grafika-projekat', 'Optimal_block_packing', 'Tavern_Tower', 'score_sheet', 'TicTacToe']);
 
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose, designHeight, daytime }) {
   const [chutePressed, setChutePressed] = useState(false);
@@ -220,6 +220,21 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                         Your browser does not support the video tag.
                       </video>
                     </div>
+                  ) : selectedRepo && selectedRepo.name === 'TicTacToe' ? (
+                    <video
+                      key="tictactoe-video"
+                      autoPlay
+                      muted
+                      playsInline
+                      controlsList="nodownload nofullscreen noremoteplayback"
+                      disablePictureInPicture
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
+                      onContextMenu={(e) => e.preventDefault()}
+                    >
+                      <source src={import.meta.env.BASE_URL + "videos/TicTacToe.mp4"} type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
                   ) : (
                     postSequenceActive ? <LoopingSequenceVideo initialPhase="static" /> : <LoopingSequenceVideo />
                   )}
