@@ -2,8 +2,20 @@
  * Vite plugin: fetches GitHub repo data at build time and writes public/repos.json.
  * Uses GITHUB_TOKEN env var (no VITE_ prefix — never exposed to browser).
  */
-import { writeFileSync, mkdirSync } from 'fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'fs';
 import { resolve } from 'path';
+
+// Manually load .env so GITHUB_TOKEN is available in Node/plugin context
+function loadEnv() {
+  try {
+    const lines = readFileSync(resolve('.env'), 'utf8').split('\n');
+    for (const line of lines) {
+      const match = line.match(/^\s*([\w]+)\s*=\s*(.*)\s*$/);
+      if (match) process.env[match[1]] ??= match[2].trim();
+    }
+  } catch { /* no .env file */ }
+}
+loadEnv();
 
 const GITHUB_USERNAME   = 'FilipAntonijevic';
 const INCLUDED_PROJECTS = [

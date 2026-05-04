@@ -355,12 +355,9 @@ function App() {
     if (!appReady) return;
     const el = areaRef.current;
     if (!el) return;
-    const CLICKABLE = 'a, button, input, select, textarea, [role="button"], [tabindex], label';
     function onMouseDown(e) {
       if (introRef.current) return;
       if (activeInputRef.current && activeInputRef.current !== 'mouse') return;
-      // Don't start drag if pressing on something interactive
-      if (e.target.closest(CLICKABLE)) return;
       stopMomentum();
       activeInputRef.current  = 'mouse';
       mouseDragActive.current = true;

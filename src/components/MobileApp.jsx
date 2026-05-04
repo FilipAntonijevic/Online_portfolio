@@ -279,8 +279,8 @@ function MobileApp() {
   }
   function startMomentum(velDegPerMs) {
     stopMomentum();
-    const FRICTION = 0.93; // per 16 ms frame
-    const MIN_VEL  = 0.003; // deg/ms — stop below this
+    const FRICTION = 0.97; // per 16 ms frame
+    const MIN_VEL  = 0.001; // deg/ms — stop below this
     let vel  = velDegPerMs;
     let prevT = performance.now();
     function tick(now) {
@@ -377,7 +377,9 @@ function MobileApp() {
   }
 
   return (
-    <div className="mobile-app" style={{ userSelect: 'none' }}>
+    <div className="mobile-app" style={{ userSelect: 'none', WebkitTouchCallout: 'none' }}
+      onContextMenu={e => e.preventDefault()}
+    >
       {!appReady && <LoadingScreen />}
       <StarBackground angleRef={bgAngleRef} />
       <div
