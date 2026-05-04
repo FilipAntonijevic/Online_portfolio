@@ -25,6 +25,8 @@ function MobileApp() {
   // ── Data state ────────────────────────────────────────────────────────────
   const [repos, setRepos]               = useState([]);
   const [loading, setLoading]           = useState(true);
+  const [imagesReady, setImagesReady]   = useState(false);
+  const appReady = !loading && imagesReady;
   const [error, setError]               = useState(null);
   const [droppedRepo, setDroppedRepo]   = useState(null);
   const [selectedRepo, setSelectedRepo] = useState(null);
@@ -182,9 +184,25 @@ function MobileApp() {
   // Re-apply on orientation/resize (containerW changed)
   useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Intro 325° spin — fires once when loading finishes
+  // Preload key textures — only then hide LoadingScreen
   useEffect(() => {
     if (loading) return;
+    const srcs = [
+      '/images/rest/Vending_machine.png',
+      '/images/rest/Vending_machine_bottom.png',
+      '/images/rest/Vending_machine_left2.png',
+      '/images/rest/Vending_machine_right2.png',
+      '/images/rest/Vending_machine_right_bottom.png',
+      '/images/rest/Vending_machine_back.png',
+    ];
+    let done = 0;
+    const onDone = () => { if (++done === srcs.length) setImagesReady(true); };
+    srcs.forEach(src => { const img = new Image(); img.onload = img.onerror = onDone; img.src = src; });
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Intro 325° spin — fires once when app is ready
+  useEffect(() => {
+    if (!appReady) return;
     introRef.current = true;
     setIntroPlaying(true);
     const DURATION = 2200;
@@ -205,11 +223,11 @@ function MobileApp() {
     }
     rafId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafId);
-  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // touchmove — registered after loading finishes (areaRef is in DOM only then)
+  // touchmove — registered after app is ready
   useEffect(() => {
-    if (loading) return;
+    if (!appReady) return;
     const el = areaRef.current;
     if (!el) return;
     function onMove(e) {
@@ -233,7 +251,7 @@ function MobileApp() {
     }
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
-  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleTouchStart(e) {
     if (introRef.current) return;
@@ -289,10 +307,9 @@ function MobileApp() {
     }
   }
 
-  if (loading) return <LoadingScreen />;
-
   return (
     <div className="mobile-app">
+      {!appReady && <LoadingScreen />}
       <StarBackground angleRef={bgAngleRef} />
       <div
         ref={areaRef}

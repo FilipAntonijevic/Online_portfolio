@@ -21,6 +21,8 @@ function App() {
   // ── Data state ────────────────────────────────────────────────────────────
   const [repos, setRepos]               = useState([]);
   const [loading, setLoading]           = useState(true);
+  const [imagesReady, setImagesReady]   = useState(false);
+  const appReady = !loading && imagesReady;
   const [error, setError]               = useState(null);
   const [droppedRepo, setDroppedRepo]   = useState(null);
   const [selectedRepo, setSelectedRepo] = useState(null);
@@ -190,9 +192,25 @@ function App() {
   // Re-apply on resize
   useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Intro 325° spin — fires once when loading finishes
+  // Preload key textures after fetch — only then hide LoadingScreen
   useEffect(() => {
     if (loading) return;
+    const srcs = [
+      '/images/rest/Vending_machine.png',
+      '/images/rest/Vending_machine_bottom.png',
+      '/images/rest/Vending_machine_left2.png',
+      '/images/rest/Vending_machine_right2.png',
+      '/images/rest/Vending_machine_right_bottom.png',
+      '/images/rest/Vending_machine_back.png',
+    ];
+    let done = 0;
+    const onDone = () => { if (++done === srcs.length) setImagesReady(true); };
+    srcs.forEach(src => { const img = new Image(); img.onload = img.onerror = onDone; img.src = src; });
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Intro 325° spin — fires once when app is ready
+  useEffect(() => {
+    if (!appReady) return;
     introRef.current = true;
     setIntroPlaying(true);
     const DURATION = 3000;
@@ -213,11 +231,11 @@ function App() {
     }
     rafId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafId);
-  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Touch — registered after loading, so areaRef is in DOM
+  // Touch — registered after app is ready
   useEffect(() => {
-    if (loading) return;
+    if (!appReady) return;
     const el = areaRef.current;
     if (!el) return;
     function onMove(e) {
@@ -241,7 +259,7 @@ function App() {
     }
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
-  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleTouchStart(e) {
     if (introRef.current) return;
@@ -291,7 +309,7 @@ function App() {
 
   // Mouse drag rotation
   useEffect(() => {
-    if (loading) return;
+    if (!appReady) return;
     const el = areaRef.current;
     if (!el) return;
     const CLICKABLE = 'a, button, input, select, textarea, [role="button"], [tabindex], label';
@@ -326,11 +344,11 @@ function App() {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup',   onMouseUp);
     };
-  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll wheel rotation
   useEffect(() => {
-    if (loading) return;
+    if (!appReady) return;
     const el = areaRef.current;
     if (!el) return;
     function onWheel(e) {
@@ -346,7 +364,7 @@ function App() {
     }
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function renderPanel(i) {
     switch (i) {
@@ -383,13 +401,12 @@ function App() {
     }
   }
 
-  if (loading) return <LoadingScreen />;
-
   return (
     <div
       style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#06061a' }}
       onDragStart={e => e.preventDefault()}
     >
+      {!appReady && <LoadingScreen />}
       <StarBackground angleRef={bgAngleRef} />
       <div style={{
         position: 'absolute', inset: 0,
