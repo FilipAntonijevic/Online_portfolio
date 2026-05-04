@@ -23,9 +23,9 @@ function RightSide({ onSwipeToFront }) {
             rel="noopener noreferrer"
             style={{
             position: 'absolute',
-            left: '5%',
+            left: '25%',
             top: '9%',
-            width: '60%',
+            width: '45%',
             zIndex: 20,
             display: 'block',
             transform: 'rotate(4deg)',
@@ -45,9 +45,9 @@ function RightSide({ onSwipeToFront }) {
             rel="noopener noreferrer"
             style={{
             position: 'absolute',
-            right: '22%',
-            top: '79%',
-            width: '20%',
+            right: '33%',
+            top: '65%',
+            width: '22%',
             zIndex: 200,
             display: 'block',
             }}
@@ -59,20 +59,23 @@ function RightSide({ onSwipeToFront }) {
             />
         </a>
 
-        <img
-            src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
-            alt=""
-            style={{
-            position: 'absolute',
-            left: '-2%',
-            top: '55%',
-            width: '40%',
-            height: 'auto',
-            zIndex: 20,
-            pointerEvents: 'none',
-            userSelect: 'none',
-            }}
-        />
+        <a
+            href={import.meta.env.BASE_URL + "Filip_Antonijevic_CV.pdf"}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ position: 'absolute', left: '-2%', top: '35%', width: '47%', zIndex: 20 }}
+        >
+            <img
+                src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
+                alt="CV"
+                style={{
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+                userSelect: 'none',
+                }}
+            />
+        </a>
           <a
                 href="mailto:filipdantonijevic@gmail.com"
                 style={{

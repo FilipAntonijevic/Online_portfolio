@@ -66,20 +66,29 @@ function LeftColumn() {
         />
       </a>
 
-      <img
-        src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
-        alt=""
+      <a
+        href={import.meta.env.BASE_URL + "Filip_Antonijevic_CV.pdf"}
+        target="_blank"
+        rel="noopener noreferrer"
         style={{
           position: 'absolute',
           right: '75%',
           top: '37%',
           transform: 'translateY(-50%)',
           width: '30%',
-          height: 'auto',
           zIndex: 20,
-          pointerEvents: 'auto',
         }}
-      />
+      >
+        <img
+          src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
+          alt="CV"
+          style={{
+            width: '100%',
+            height: 'auto',
+            display: 'block',
+          }}
+        />
+      </a>
     </aside>
   );
 }
