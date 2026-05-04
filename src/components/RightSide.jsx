@@ -100,7 +100,7 @@ function RightSide({ onSwipeToFront }) {
             position: 'absolute',
             width: '100%',
             height: '100%',
-            zIndex: 200000,
+            zIndex: 2000,
             pointerEvents: 'none',
             userSelect: 'none',
             }}

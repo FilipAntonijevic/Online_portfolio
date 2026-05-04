@@ -504,6 +504,7 @@ function App() {
                 <div
                   ref={el => { panelInnerRefs.current[i] = el; }}
                   style={{ width: '100%', height: '100%', position: 'relative' }}
+                  className={['', 'side-panel-right', 'side-panel-back', 'side-panel-left'][i] || undefined}
                 >
                   {renderPanel(i)}
                 </div>

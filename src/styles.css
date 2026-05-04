@@ -820,3 +820,29 @@ img {
   padding: 5px;
   line-height: 0;
 }
+
+/* ── Side panel darkness overlay (LeftSide / RightSide / BackSide) ─────── */
+.side-panel-left::after,
+.side-panel-right::after,
+.side-panel-back::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* LeftSide: far edge is left → dark on left, transparent on right */
+.side-panel-left::after {
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+}
+
+/* RightSide: far edge is right → dark on right, transparent on left */
+.side-panel-right::after {
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0));
+}
+
+/* BackSide: solid overlay */
+.side-panel-back::after {
+  background: rgba(0, 0, 0, 0.4);
+}
