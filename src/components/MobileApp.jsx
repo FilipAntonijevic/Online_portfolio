@@ -4,6 +4,7 @@ import RightSide from './RightSide';
 import BackSide from './BackSide';
 import CenterMachine from './CenterMachine';
 import LoadingScreen from './LoadingScreen';
+import StarBackground from './StarBackground';
 import '../styles.css';
 import '../mobile.css';
 
@@ -61,6 +62,7 @@ function MobileApp() {
     } catch (err) {
       setError(err.message);
     } finally {
+      await new Promise(r => setTimeout(r, 500));
       setLoading(false);
     }
   }
@@ -125,6 +127,9 @@ function MobileApp() {
   const labelRefs       = useRef([null, null, null, null]);
   const areaRef         = useRef(null);
 
+  // Background parallax angle
+  const bgAngleRef = useRef(0);
+
   // Touch state — all refs, never React state
   const touchActive = useRef(false);
   const startXRef   = useRef(0);
@@ -168,6 +173,7 @@ function MobileApp() {
     });
 
     visualAngleRef.current = ang;
+    bgAngleRef.current = ang;
   }
 
   // Apply initial transforms before first paint (no flash of all-4-panels)
@@ -176,7 +182,7 @@ function MobileApp() {
   // Re-apply on orientation/resize (containerW changed)
   useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Intro 360° spin — fires once when loading finishes
+  // Intro 325° spin — fires once when loading finishes
   useEffect(() => {
     if (loading) return;
     introRef.current = true;
@@ -188,11 +194,11 @@ function MobileApp() {
     let rafId;
     function animate(now) {
       const t = Math.min((now - startTime) / DURATION, 1);
-      applyAngle(START + easeOut(t) * 360);
+      applyAngle(START + easeOut(t) * 325);
       if (t < 1) {
         rafId = requestAnimationFrame(animate);
       } else {
-        applyAngle(START + 360);
+        applyAngle(START + 325);
         introRef.current = false;
         setIntroPlaying(false);
       }
@@ -287,6 +293,7 @@ function MobileApp() {
 
   return (
     <div className="mobile-app">
+      <StarBackground angleRef={bgAngleRef} />
       <div
         ref={areaRef}
         className="mobile-machine-area"

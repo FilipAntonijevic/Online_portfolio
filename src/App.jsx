@@ -4,6 +4,7 @@ import RightSide from './components/RightSide';
 import BackSide from './components/BackSide';
 import CenterMachine from './components/CenterMachine';
 import LoadingScreen from './components/LoadingScreen';
+import StarBackground from './components/StarBackground';
 import './styles.css';
 
 const GITHUB_USERNAME   = 'FilipAntonijevic';
@@ -68,6 +69,7 @@ function App() {
     } catch (err) {
       setError(err.message);
     } finally {
+      await new Promise(r => setTimeout(r, 500));
       setLoading(false);
     }
   }
@@ -138,6 +140,9 @@ function App() {
   // Keyboard refs
   const keyIntervalRef = useRef(null);
 
+  // Background parallax angle
+  const bgAngleRef = useRef(0);
+
   // Input mutex — only one input mode active at a time ('mouse' | 'key' | 'scroll' | null)
   const activeInputRef = useRef(null);
 
@@ -176,6 +181,7 @@ function App() {
     });
 
     visualAngleRef.current = ang;
+    bgAngleRef.current = ang;
   }
 
   // Initial transforms before first paint
@@ -381,9 +387,10 @@ function App() {
 
   return (
     <div
-      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#131313' }}
+      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#06061a' }}
       onDragStart={e => e.preventDefault()}
     >
+      <StarBackground angleRef={bgAngleRef} />
       <div style={{
         position: 'absolute', inset: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
