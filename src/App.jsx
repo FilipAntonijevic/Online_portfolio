@@ -184,7 +184,7 @@ function App() {
   // Re-apply on resize
   useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Intro 360° spin — fires once when loading finishes
+  // Intro 325° spin — fires once when loading finishes
   useEffect(() => {
     if (loading) return;
     introRef.current = true;
@@ -196,11 +196,11 @@ function App() {
     let rafId;
     function animate(now) {
       const t = Math.min((now - startTime) / DURATION, 1);
-      applyAngle(START + easeOut(t) * 360);
+      applyAngle(START + easeOut(t) * 325);
       if (t < 1) {
         rafId = requestAnimationFrame(animate);
       } else {
-        applyAngle(START + 360);
+        applyAngle(START + 325);
         introRef.current = false;
         setIntroPlaying(false);
       }
