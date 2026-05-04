@@ -18,10 +18,8 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
     onProjectClick: () => {
       if (!tileRef.current) return;
 
-      // Portal into the clone layer (behind Vending_machine_bottom) so the
-      // falling animation disappears under the bottom panel image.
+      // Portal into the App scaler so z-index works relative to vending-machine-bottom.
       const scaler = document.querySelector('[data-scaler="true"]');
-      const cloneLayer = document.querySelector('[data-clone-layer="true"]');
       let appScale = 1;
       if (scaler) {
         appScale = new DOMMatrix(getComputedStyle(scaler).transform).a;
@@ -47,9 +45,12 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
 
       setScale(1.03);
       setTimeout(() => {
-        setScale(1);
         const cloneId = Date.now();
-        setClones([{ id: cloneId, scale: 1.03, designTop, designLeft, designW, designH, container: cloneLayer ?? scaler, z: 10, dropping: false, dropY: null, rotation: 0 }]);
+        ReactDOM.flushSync(() => {
+          setScale(1);
+          setClones([{ id: cloneId, scale: 1.03, designTop, designLeft, designW, designH, container: scaler, z: 10, dropping: false, dropY: null, rotation: 0 }]);
+        });
+        // Clone is now in the DOM — rAFs will find it
         let start = null;
         function animateScale(ts) {
           if (!start) start = ts;

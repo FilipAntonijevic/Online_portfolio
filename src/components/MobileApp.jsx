@@ -360,18 +360,6 @@ function MobileApp() {
         return (
           <>
             <img src="/images/rest/Vending_machine.png" alt="" className="mobile-machine-bg" />
-            <div
-              data-clone-layer="true"
-              style={{
-                position: 'absolute', top: 0, left: 0,
-                width: MACHINE_NATURAL_W, height: MACHINE_NATURAL_H,
-                transformOrigin: 'top left',
-                transform: `scale(${machineScale})`,
-                zIndex: 9998,
-                pointerEvents: 'none',
-              }}
-            />
-            <img src="/images/rest/Vending_machine_bottom.png" alt="" className="mobile-machine-bg" style={{ zIndex: 9999 }} />
             <div className="mobile-front-scaler" data-scaler="true" style={{
               transformOrigin: 'top left',
               transform:       `scale(${machineScale})`,
@@ -382,6 +370,7 @@ function MobileApp() {
               position:        'relative',
               zIndex:          10000,
             }}>
+              <img src="/images/rest/Vending_machine_bottom.png" alt="" className="mobile-machine-bg" style={{ zIndex: 800, pointerEvents: 'none' }} />
               <CenterMachine
                 repos={repos} loading={loading} error={error}
                 droppedRepo={droppedRepo} selectedRepo={selectedRepo}
@@ -432,31 +421,6 @@ function MobileApp() {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Compass indicator — absolute overlay, doesn't affect flex centering */}
-        <div className="mobile-rotation-indicator" style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', zIndex: 100 }}>
-          <svg width="56" height="56" viewBox="-28 -28 56 56">
-            <circle r="22" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5" />
-            {[
-              { deg: 0,   label: 'F', i: 0 },
-              { deg: 90,  label: 'R', i: 1 },
-              { deg: 180, label: 'B', i: 2 },
-              { deg: 270, label: 'L', i: 3 },
-            ].map(({ deg, label, i }) => {
-              const rad = (deg - 90) * Math.PI / 180;
-              return (
-                <text key={deg}
-                  ref={el => { labelRefs.current[i] = el; }}
-                  x={Math.cos(rad) * 14} y={Math.sin(rad) * 14}
-                  textAnchor="middle" dominantBaseline="middle"
-                  fill="rgba(255,255,255,0.28)"
-                  fontSize="7" fontFamily="monospace" fontWeight="normal"
-                >{label}</text>
-              );
-            })}
-            <circle ref={dotRef} cx="0" cy="-22" r="3.5" fill="rgba(255,255,255,0.85)" />
-          </svg>
         </div>
       </div>
     </div>
