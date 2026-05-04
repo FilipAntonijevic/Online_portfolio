@@ -719,6 +719,14 @@ img {
     }
   }
 
+  @keyframes ventSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  .vent-spin {
+    animation: ventSpin 8s linear infinite;
+  }
+
   /* ===================================
     Accessibility
     =================================== */

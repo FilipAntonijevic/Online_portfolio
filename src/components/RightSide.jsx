@@ -73,6 +73,39 @@ function RightSide({ onSwipeToFront }) {
             userSelect: 'none',
             }}
         />
+          <a
+                href="mailto:filipdantonijevic@gmail.com"
+                style={{
+                position: 'absolute',
+                right: '11%',
+                top: '46.8%',
+                width: '17%',
+                zIndex: 20,
+                display: 'block',
+                transform: 'rotate(-24deg)',
+                }}
+            >
+                <img
+                src="/images/rest/Mail.png"
+                alt=""
+                style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
+                />
+            </a>
+
+
+            <img
+            src="/images/rest/Vending_machine_right_bottom.png"
+            alt=""
+            style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            zIndex: 200000,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            }}
+        />
+
         </div>
       </div>
     </>
