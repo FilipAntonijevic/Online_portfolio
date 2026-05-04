@@ -137,7 +137,9 @@ function MobileApp() {
   const startXRef   = useRef(0);
   const startYRef   = useRef(0);
   const prevXRef    = useRef(0);
-  const dirRef      = useRef(null); // null | 'h' | 'v'
+  const dirRef          = useRef(null); // null | 'h' | 'v'
+  const touchSamplesRef = useRef([]);   // [{x,t}] recent touch positions
+  const momentumRafRef  = useRef(null); // ongoing inertia animation
 
   function applyAngle(ang) {
     const W    = containerWRef.current;
@@ -225,11 +227,26 @@ function MobileApp() {
     return () => cancelAnimationFrame(rafId);
   }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // touchmove — registered after app is ready
+  // touch — all on window so drag works anywhere on screen
   useEffect(() => {
     if (!appReady) return;
-    const el = areaRef.current;
-    if (!el) return;
+    function onStart(e) {
+      if (introRef.current) return;
+      stopMomentum();
+      touchSamplesRef.current = [];
+      touchActive.current = true;
+      startXRef.current   = e.touches[0].clientX;
+      startYRef.current   = e.touches[0].clientY;
+      prevXRef.current    = e.touches[0].clientX;
+      dirRef.current      = null;
+    }
+    function onEnd() {
+      if (!touchActive.current) return;
+      touchActive.current = false;
+      dirRef.current      = null;
+      const vel = computeVelocity(touchSamplesRef.current, containerWRef.current);
+      if (Math.abs(vel) > 0.003) startMomentum(vel);
+    }
     function onMove(e) {
       if (!touchActive.current) return;
       const currentX = e.touches[0].clientX;
@@ -245,16 +262,75 @@ function MobileApp() {
       }
       if (dirRef.current === 'v') return;
       e.preventDefault();
+      const nowT  = performance.now();
       const delta = prevXRef.current - currentX; // left = clockwise
+      touchSamplesRef.current.push({ x: currentX, t: nowT });
+      const cutoff = nowT - 200;
+      while (touchSamplesRef.current.length > 1 && touchSamplesRef.current[0].t < cutoff)
+        touchSamplesRef.current.shift();
       prevXRef.current = currentX;
       applyAngle(visualAngleRef.current + delta * (90 / containerWRef.current));
     }
-    el.addEventListener('touchmove', onMove, { passive: false });
-    return () => el.removeEventListener('touchmove', onMove);
+    window.addEventListener('touchstart', onStart, { passive: true });
+    window.addEventListener('touchend',   onEnd,   { passive: true });
+    window.addEventListener('touchmove',  onMove,  { passive: false });
+    return () => {
+      window.removeEventListener('touchstart', onStart);
+      window.removeEventListener('touchend',   onEnd);
+      window.removeEventListener('touchmove',  onMove);
+    };
   }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function stopMomentum() {
+    if (momentumRafRef.current) {
+      cancelAnimationFrame(momentumRafRef.current);
+      momentumRafRef.current = null;
+    }
+  }
+  function startMomentum(velDegPerMs) {
+    stopMomentum();
+    const FRICTION = 0.93; // per 16 ms frame
+    const MIN_VEL  = 0.003; // deg/ms — stop below this
+    let vel  = velDegPerMs;
+    let prevT = performance.now();
+    function tick(now) {
+      const dt = Math.min(now - prevT, 50);
+      prevT = now;
+      vel *= Math.pow(FRICTION, dt / 16);
+      if (Math.abs(vel) < MIN_VEL) { momentumRafRef.current = null; return; }
+      applyAngle(visualAngleRef.current + vel * dt);
+      momentumRafRef.current = requestAnimationFrame(tick);
+    }
+    momentumRafRef.current = requestAnimationFrame(tick);
+  }
+  function computeVelocity(samples, w) {
+    if (samples.length < 2) return 0;
+    const newest = samples[samples.length - 1];
+    // Velocity from last 50ms
+    const recentFloor = newest.t - 50;
+    const recent = samples.filter(s => s.t >= recentFloor);
+    if (recent.length < 2) return 0;
+    const dtR = recent[recent.length - 1].t - recent[0].t;
+    if (dtR < 5) return 0;
+    const velR = ((recent[0].x - recent[recent.length - 1].x) / dtR) * (90 / w);
+    // Velocity from the 50-150ms window before release
+    const olderFloor = newest.t - 150;
+    const older = samples.filter(s => s.t >= olderFloor && s.t < recentFloor);
+    if (older.length >= 2) {
+      const dtO = older[older.length - 1].t - older[0].t;
+      if (dtO > 5) {
+        const velO = ((older[0].x - older[older.length - 1].x) / dtO) * (90 / w);
+        // User was decelerating — suppress momentum
+        if (Math.abs(velR) < Math.abs(velO) * 0.6) return 0;
+      }
+    }
+    return velR;
+  }
 
   function handleTouchStart(e) {
     if (introRef.current) return;
+    stopMomentum();
+    touchSamplesRef.current = [];
     touchActive.current = true;
     startXRef.current   = e.touches[0].clientX;
     startYRef.current   = e.touches[0].clientY;
@@ -263,8 +339,11 @@ function MobileApp() {
   }
 
   function handleTouchEnd() {
+    if (!touchActive.current) return;
     touchActive.current = false;
     dirRef.current      = null;
+    const vel = computeVelocity(touchSamplesRef.current, containerWRef.current);
+    if (Math.abs(vel) > 0.003) startMomentum(vel);
   }
 
   function snapToFront() {
@@ -308,15 +387,13 @@ function MobileApp() {
   }
 
   return (
-    <div className="mobile-app">
+    <div className="mobile-app" style={{ userSelect: 'none' }}>
       {!appReady && <LoadingScreen />}
       <StarBackground angleRef={bgAngleRef} />
       <div
         ref={areaRef}
         className="mobile-machine-area"
         style={{ perspective: `${containerW * 2}px`, width: containerW, height: containerH }}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
       >
         {/* Input blocker during intro animation */}
         {introPlaying && (

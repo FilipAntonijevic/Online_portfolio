@@ -136,8 +136,11 @@ function App() {
   const dirRef      = useRef(null);
 
   // Mouse drag refs
-  const mouseDragActive = useRef(false);
-  const mousePrevXRef   = useRef(0);
+  const mouseDragActive  = useRef(false);
+  const mousePrevXRef    = useRef(0);
+  const mouseSamplesRef  = useRef([]);   // [{x,t}] recent pointer positions
+  const touchSamplesRef  = useRef([]);   // [{x,t}] recent touch positions
+  const momentumRafRef   = useRef(null); // ongoing inertia animation
 
   // Keyboard refs
   const keyIntervalRef = useRef(null);
@@ -254,6 +257,11 @@ function App() {
       if (dirRef.current === 'v') return;
       e.preventDefault();
       const delta = prevXRef.current - currentX;
+      const nowT = performance.now();
+      touchSamplesRef.current.push({ x: currentX, t: nowT });
+      const cutoff = nowT - 200;
+      while (touchSamplesRef.current.length > 1 && touchSamplesRef.current[0].t < cutoff)
+        touchSamplesRef.current.shift();
       prevXRef.current = currentX;
       applyAngle(visualAngleRef.current + delta * (90 / containerWRef.current));
     }
@@ -261,8 +269,56 @@ function App() {
     return () => el.removeEventListener('touchmove', onMove);
   }, [appReady]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  function stopMomentum() {
+    if (momentumRafRef.current) {
+      cancelAnimationFrame(momentumRafRef.current);
+      momentumRafRef.current = null;
+    }
+  }
+  function startMomentum(velDegPerMs) {
+    stopMomentum();
+    const FRICTION = 0.97; // per 16 ms frame
+    const MIN_VEL  = 0.003; // deg/ms — stop below this
+    let vel  = velDegPerMs;
+    let prevT = performance.now();
+    function tick(now) {
+      const dt = Math.min(now - prevT, 50);
+      prevT = now;
+      vel *= Math.pow(FRICTION, dt / 16);
+      if (Math.abs(vel) < MIN_VEL) { momentumRafRef.current = null; return; }
+      applyAngle(visualAngleRef.current + vel * dt);
+      momentumRafRef.current = requestAnimationFrame(tick);
+    }
+    momentumRafRef.current = requestAnimationFrame(tick);
+  }
+  function computeVelocity(samples, w) {
+    if (samples.length < 2) return 0;
+    const newest = samples[samples.length - 1];
+    // Velocity from last 50ms
+    const recentFloor = newest.t - 50;
+    const recent = samples.filter(s => s.t >= recentFloor);
+    if (recent.length < 2) return 0;
+    const dtR = recent[recent.length - 1].t - recent[0].t;
+    if (dtR < 5) return 0;
+    const velR = ((recent[0].x - recent[recent.length - 1].x) / dtR) * (90 / w);
+    // Velocity from the 50-150ms window before release
+    const olderFloor = newest.t - 150;
+    const older = samples.filter(s => s.t >= olderFloor && s.t < recentFloor);
+    if (older.length >= 2) {
+      const dtO = older[older.length - 1].t - older[0].t;
+      if (dtO > 5) {
+        const velO = ((older[0].x - older[older.length - 1].x) / dtO) * (90 / w);
+        // User was decelerating — suppress momentum
+        if (Math.abs(velR) < Math.abs(velO) * 0.6) return 0;
+      }
+    }
+    return velR;
+  }
+
   function handleTouchStart(e) {
     if (introRef.current) return;
+    stopMomentum();
+    touchSamplesRef.current = [];
     touchActive.current = true;
     startXRef.current   = e.touches[0].clientX;
     startYRef.current   = e.touches[0].clientY;
@@ -270,8 +326,11 @@ function App() {
     dirRef.current      = null;
   }
   function handleTouchEnd() {
+    if (!touchActive.current) return;
     touchActive.current = false;
     dirRef.current      = null;
+    const vel = computeVelocity(touchSamplesRef.current, containerWRef.current);
+    if (Math.abs(vel) > 0.003) startMomentum(vel);
   }
 
   // Arrow key rotation — smooth continuous rotation while key held
@@ -281,6 +340,7 @@ function App() {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       if (keyIntervalRef.current) return;
       if (activeInputRef.current && activeInputRef.current !== 'key') return;
+      stopMomentum();
       activeInputRef.current = 'key';
       const dir  = e.key === 'ArrowRight' ? 1 : -1;
       const step = () => applyAngle(visualAngleRef.current + dir * 2);
@@ -318,29 +378,39 @@ function App() {
       if (activeInputRef.current && activeInputRef.current !== 'mouse') return;
       // Don't start drag if pressing on something interactive
       if (e.target.closest(CLICKABLE)) return;
+      stopMomentum();
       activeInputRef.current  = 'mouse';
       mouseDragActive.current = true;
       mousePrevXRef.current   = e.clientX;
-      el.style.cursor = 'grabbing';
+      mouseSamplesRef.current = [{ x: e.clientX, t: performance.now() }];
+      document.body.style.cursor = 'grabbing';
     }
     function onMouseMove(e) {
       if (!mouseDragActive.current) return;
       // If button was released outside window, e.buttons will be 0
       if (e.buttons === 0) { onMouseUp(); return; }
+      const nowT = performance.now();
       const delta = mousePrevXRef.current - e.clientX;
       mousePrevXRef.current = e.clientX;
+      mouseSamplesRef.current.push({ x: e.clientX, t: nowT });
+      const cutoff = nowT - 200;
+      while (mouseSamplesRef.current.length > 1 && mouseSamplesRef.current[0].t < cutoff)
+        mouseSamplesRef.current.shift();
       applyAngle(visualAngleRef.current + delta * (90 / containerWRef.current));
     }
     function onMouseUp() {
+      if (!mouseDragActive.current) return;
       mouseDragActive.current = false;
-      el.style.cursor = '';
+      document.body.style.cursor = '';
       if (activeInputRef.current === 'mouse') activeInputRef.current = null;
+      const vel = computeVelocity(mouseSamplesRef.current, containerWRef.current);
+      if (Math.abs(vel) > 0.003) startMomentum(vel);
     }
-    el.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup',   onMouseUp);
     return () => {
-      el.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup',   onMouseUp);
     };
@@ -354,6 +424,7 @@ function App() {
     function onWheel(e) {
       if (introRef.current) return;
       if (activeInputRef.current && activeInputRef.current !== 'scroll') return;
+      stopMomentum();
       e.preventDefault();
       activeInputRef.current = 'scroll';
       applyAngle(visualAngleRef.current + e.deltaY * 0.07);
@@ -403,7 +474,7 @@ function App() {
 
   return (
     <div
-      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#06061a' }}
+      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#06061a', userSelect: 'none' }}
       onDragStart={e => e.preventDefault()}
     >
       {!appReady && <LoadingScreen />}
