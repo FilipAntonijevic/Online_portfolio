@@ -103,6 +103,9 @@ function App() {
 
   // ── 4-panel carousel — ZERO React state for rotation ─────────────────────
   // Panels: 0=Front, 1=Right, 2=Back, 3=Left
+  const introRef         = useRef(false);
+  const [introPlaying, setIntroPlaying] = useState(false);
+
   const visualAngleRef = useRef(270);
   const panelOuterRefs = useRef([null, null, null, null]);
   const panelInnerRefs = useRef([null, null, null, null]);
@@ -117,6 +120,10 @@ function App() {
   const startYRef   = useRef(0);
   const prevXRef    = useRef(0);
   const dirRef      = useRef(null);
+
+  // Mouse drag refs
+  const mouseDragActive = useRef(false);
+  const mousePrevXRef   = useRef(0);
 
   // Keyboard refs
   const keyIntervalRef = useRef(null);
@@ -159,13 +166,39 @@ function App() {
   }
 
   // Initial transforms before first paint
-  useLayoutEffect(() => { applyAngle(270); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { applyAngle(0); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Re-apply on resize
   useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Touch — registered once, reads all values via refs
+  // Intro 360° spin — fires once when loading finishes
   useEffect(() => {
+    if (loading) return;
+    introRef.current = true;
+    setIntroPlaying(true);
+    const DURATION = 3000;
+    const START    = 0;
+    const easeOut  = t => 1 - Math.pow(1 - t, 2);
+    const startTime = performance.now();
+    let rafId;
+    function animate(now) {
+      const t = Math.min((now - startTime) / DURATION, 1);
+      applyAngle(START + easeOut(t) * 360);
+      if (t < 1) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        applyAngle(START + 360);
+        introRef.current = false;
+        setIntroPlaying(false);
+      }
+    }
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Touch — registered after loading, so areaRef is in DOM
+  useEffect(() => {
+    if (loading) return;
     const el = areaRef.current;
     if (!el) return;
     function onMove(e) {
@@ -189,9 +222,10 @@ function App() {
     }
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleTouchStart(e) {
+    if (introRef.current) return;
     touchActive.current = true;
     startXRef.current   = e.touches[0].clientX;
     startYRef.current   = e.touches[0].clientY;
@@ -206,6 +240,7 @@ function App() {
   // Arrow key rotation — smooth continuous rotation while key held
   useEffect(() => {
     function onKeyDown(e) {
+      if (introRef.current) return;
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       if (keyIntervalRef.current) return; // already running
       const dir  = e.key === 'ArrowRight' ? 1 : -1;
@@ -231,6 +266,51 @@ function App() {
   function snapToFront() {
     applyAngle(Math.round(visualAngleRef.current / 360) * 360);
   }
+
+  // Mouse drag rotation
+  useEffect(() => {
+    if (loading) return;
+    const el = areaRef.current;
+    if (!el) return;
+    function onMouseDown(e) {
+      if (introRef.current) return;
+      mouseDragActive.current = true;
+      mousePrevXRef.current   = e.clientX;
+      el.style.cursor = 'grabbing';
+    }
+    function onMouseMove(e) {
+      if (!mouseDragActive.current) return;
+      const delta = mousePrevXRef.current - e.clientX;
+      mousePrevXRef.current = e.clientX;
+      applyAngle(visualAngleRef.current + delta * (90 / containerWRef.current));
+    }
+    function onMouseUp() {
+      mouseDragActive.current = false;
+      el.style.cursor = '';
+    }
+    el.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup',   onMouseUp);
+    return () => {
+      el.removeEventListener('mousedown', onMouseDown);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup',   onMouseUp);
+    };
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Scroll wheel rotation
+  useEffect(() => {
+    if (loading) return;
+    const el = areaRef.current;
+    if (!el) return;
+    function onWheel(e) {
+      if (introRef.current) return;
+      e.preventDefault();
+      applyAngle(visualAngleRef.current + e.deltaY * 0.07);
+    }
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function renderPanel(i) {
     switch (i) {
@@ -281,8 +361,10 @@ function App() {
           style={{ position: 'relative', width: containerW, height: containerH, perspective: `${containerW * 2}px` }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-        >
-          <div
+        >          {/* Input blocker during intro animation */}
+          {introPlaying && (
+            <div style={{ position: 'absolute', inset: 0, zIndex: 99998, pointerEvents: 'all' }} />
+          )}          <div
             ref={carouselRef}
             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transformStyle: 'preserve-3d' }}
           >

@@ -3,6 +3,7 @@ import LeftSide from './LeftSide';
 import RightSide from './RightSide';
 import BackSide from './BackSide';
 import CenterMachine from './CenterMachine';
+import LoadingScreen from './LoadingScreen';
 import '../styles.css';
 import '../mobile.css';
 
@@ -112,6 +113,9 @@ function MobileApp() {
   //
   // Panels: 0=Front, 1=Right, 2=Back, 3=Left
 
+  const introRef         = useRef(false);
+  const [introPlaying, setIntroPlaying] = useState(false);
+
   const visualAngleRef  = useRef(270);
 
   const panelOuterRefs  = useRef([null, null, null, null]);
@@ -167,13 +171,39 @@ function MobileApp() {
   }
 
   // Apply initial transforms before first paint (no flash of all-4-panels)
-  useLayoutEffect(() => { applyAngle(270); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => { applyAngle(0); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Re-apply on orientation/resize (containerW changed)
   useEffect(() => { applyAngle(visualAngleRef.current); }, [containerW]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // touchmove — registered ONCE, reads all dynamic values via refs
+  // Intro 360° spin — fires once when loading finishes
   useEffect(() => {
+    if (loading) return;
+    introRef.current = true;
+    setIntroPlaying(true);
+    const DURATION = 2200;
+    const START    = 0;
+    const easeOut  = t => 1 - Math.pow(1 - t, 3);
+    const startTime = performance.now();
+    let rafId;
+    function animate(now) {
+      const t = Math.min((now - startTime) / DURATION, 1);
+      applyAngle(START + easeOut(t) * 360);
+      if (t < 1) {
+        rafId = requestAnimationFrame(animate);
+      } else {
+        applyAngle(START + 360);
+        introRef.current = false;
+        setIntroPlaying(false);
+      }
+    }
+    rafId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafId);
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // touchmove — registered after loading finishes (areaRef is in DOM only then)
+  useEffect(() => {
+    if (loading) return;
     const el = areaRef.current;
     if (!el) return;
     function onMove(e) {
@@ -197,9 +227,10 @@ function MobileApp() {
     }
     el.addEventListener('touchmove', onMove, { passive: false });
     return () => el.removeEventListener('touchmove', onMove);
-  }, []); // empty deps — registered once, never re-registered
+  }, [loading]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleTouchStart(e) {
+    if (introRef.current) return;
     touchActive.current = true;
     startXRef.current   = e.touches[0].clientX;
     startYRef.current   = e.touches[0].clientY;
@@ -252,6 +283,8 @@ function MobileApp() {
     }
   }
 
+  if (loading) return <LoadingScreen />;
+
   return (
     <div className="mobile-app">
       <div
@@ -261,6 +294,10 @@ function MobileApp() {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
+        {/* Input blocker during intro animation */}
+        {introPlaying && (
+          <div style={{ position: 'absolute', inset: 0, zIndex: 99998, pointerEvents: 'all' }} />
+        )}
         <div
           ref={carouselRef}
           style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transformStyle: 'preserve-3d' }}

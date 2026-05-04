@@ -5,7 +5,7 @@ function LeftSide({ onSwipeToFront }) {
   return (
     <>
       <img
-        src="/images/rest/Vending_machine_left.png"
+        src="/images/rest/Vending_machine_left2.png"
         alt=""
         className="mobile-machine-bg"
       />
@@ -22,7 +22,7 @@ function LeftSide({ onSwipeToFront }) {
         alt=""
         style={{
           position: 'absolute',
-          left: '31%',
+          left: '35%',
           top: '9%',
           width: '55%',
           height: 'auto',

@@ -7,7 +7,7 @@ function RightSide({ onSwipeToFront }) {
   return (
     <>
         <img
-            src="/images/rest/Vending_machine_right.png"
+            src="/images/rest/Vending_machine_right2.png"
             alt=""
             className="mobile-machine-bg"
         />
@@ -23,7 +23,7 @@ function RightSide({ onSwipeToFront }) {
             rel="noopener noreferrer"
             style={{
             position: 'absolute',
-            left: '13%',
+            left: '5%',
             top: '9%',
             width: '60%',
             zIndex: 20,
@@ -45,7 +45,7 @@ function RightSide({ onSwipeToFront }) {
             rel="noopener noreferrer"
             style={{
             position: 'absolute',
-            right: '18%',
+            right: '22%',
             top: '79%',
             width: '20%',
             zIndex: 200,
@@ -64,7 +64,7 @@ function RightSide({ onSwipeToFront }) {
             alt=""
             style={{
             position: 'absolute',
-            left: '0%',
+            left: '-2%',
             top: '55%',
             width: '40%',
             height: 'auto',
