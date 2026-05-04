@@ -84,7 +84,7 @@ function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect 
     >
       {/* Spring background - index -10 (10px right) */}
       <img
-        src="/images/rest/full_spring.png"
+        src={import.meta.env.BASE_URL + "images/rest/full_spring.png"}
         alt="full spring background"
         style={{
           position: 'absolute',
@@ -100,7 +100,7 @@ function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect 
       />
       {/* Spring background - index -5 (5px right) */}
       <img
-        src="/images/rest/full_spring.png"
+        src={import.meta.env.BASE_URL + "images/rest/full_spring.png"}
         alt="full spring background"
         style={{
           position: 'absolute',
@@ -116,7 +116,7 @@ function SnackTile({ repo, style, slotIndex = 0, onProjectDrop, onProjectSelect 
       />
       {/* Spring background - index 0 (original, no offset) */}
       <img
-        src="/images/rest/full_spring.png"
+        src={import.meta.env.BASE_URL + "images/rest/full_spring.png"}
         alt="full spring background"
         style={{
           position: 'absolute',

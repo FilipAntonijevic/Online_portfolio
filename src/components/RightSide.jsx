@@ -7,7 +7,7 @@ function RightSide({ onSwipeToFront }) {
   return (
     <>
         <img
-            src="/images/rest/Vending_machine_right2.png"
+            src={import.meta.env.BASE_URL + "images/rest/Vending_machine_right2.png"}
             alt=""
             className="mobile-machine-bg"
         />
@@ -32,7 +32,7 @@ function RightSide({ onSwipeToFront }) {
             }}
         >
             <img
-            src="/images/rest/Github_graffiti.png"
+            src={import.meta.env.BASE_URL + "images/rest/Github_graffiti.png"}
             alt=""
             style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
             />
@@ -53,14 +53,14 @@ function RightSide({ onSwipeToFront }) {
             }}
         >
             <img
-            src="/images/rest/Linkedin_graffiti.png"
+            src={import.meta.env.BASE_URL + "images/rest/Linkedin_graffiti.png"}
             alt=""
             style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
             />
         </a>
 
         <img
-            src="/images/rest/CV_graffiti.png"
+            src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
             alt=""
             style={{
             position: 'absolute',
@@ -86,7 +86,7 @@ function RightSide({ onSwipeToFront }) {
                 }}
             >
                 <img
-                src="/images/rest/Mail.png"
+                src={import.meta.env.BASE_URL + "images/rest/Mail.png"}
                 alt=""
                 style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
                 />
@@ -94,7 +94,7 @@ function RightSide({ onSwipeToFront }) {
 
 
             <img
-            src="/images/rest/Vending_machine_right_bottom.png"
+            src={import.meta.env.BASE_URL + "images/rest/Vending_machine_right_bottom.png"}
             alt=""
             style={{
             position: 'absolute',

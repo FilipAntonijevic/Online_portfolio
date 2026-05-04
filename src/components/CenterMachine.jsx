@@ -56,7 +56,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
 
   return (
     <main className="column center-column">
-      <div className="vending-machine" style={{position: 'relative'}}>
+      <div className="vending-machine" style={{position: 'relative', backgroundImage: `url(${import.meta.env.BASE_URL}images/rest/Vending_machine.png)`}}>
         <div className="vending-machine-bottom" 
               style={{position: 'absolute', 
               left: 0, 
@@ -65,7 +65,8 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
               height: 'calc(var(--design-vh, 1vh) * 100)', 
               zIndex: 9999, 
               pointerEvents: 'none', 
-              userSelect: 'none'}} />
+              userSelect: 'none',
+              backgroundImage: `url(${import.meta.env.BASE_URL}images/rest/Vending_machine_bottom.png)`}} />
           
         <div className="snack-box">
 
@@ -152,7 +153,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       onEnded={() => { setNoVideoStaticActive(false); setPostSequenceActive(true); }}
                       onContextMenu={(e) => e.preventDefault()}
                     >
-                      <source src="/videos/TV STATIC (4K 60FPS).mp4" type="video/mp4" />
+                      <source src={import.meta.env.BASE_URL + "videos/TV STATIC (4K 60FPS).mp4"} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   ) : selectedRepo && selectedRepo.name === 'Grafika-projekat' ? (
@@ -167,7 +168,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                       onContextMenu={(e) => e.preventDefault()}
                     >
-                      <source src="/videos/Mamuti na ostrvu - projekat iz računarske grafike.mp4?v=2" type="video/mp4" />
+                      <source src={import.meta.env.BASE_URL + "videos/Mamuti na ostrvu - projekat iz računarske grafike.mp4?v=2"} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
                   ) : selectedRepo && selectedRepo.name === 'Optimal_block_packing' ? (
@@ -182,7 +183,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                       onContextMenu={(e) => e.preventDefault()}
                     >
-                      <source src="/videos/Optimal_block_packing.mkv?v=2" type="video/x-matroska" />
+                      <source src={import.meta.env.BASE_URL + "videos/Optimal_block_packing.mkv?v=2"} type="video/x-matroska" />
                       Your browser does not support the video tag.
                     </video>
                   ) : selectedRepo && selectedRepo.name === 'Tavern_Tower' ? (
@@ -199,7 +200,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       onContextMenu={(e) => e.preventDefault()}
                       onLoadedMetadata={(e) => e.target.playbackRate = 2.0}
                     >
-                      <source src="/videos/Tavern_tower.mkv?v=2" type="video/x-matroska" />
+                      <source src={import.meta.env.BASE_URL + "videos/Tavern_tower.mkv?v=2"} type="video/x-matroska" />
                       Your browser does not support the video tag.
                     </video>
                   ) : selectedRepo && selectedRepo.name === 'score_sheet' ? (
@@ -215,7 +216,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                         onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
                         onContextMenu={(e) => e.preventDefault()}
                       >
-                        <source src="/videos/Score_sheet.mp4?v=2" type="video/mp4" />
+                        <source src={import.meta.env.BASE_URL + "videos/Score_sheet.mp4?v=2"} type="video/mp4" />
                         Your browser does not support the video tag.
                       </video>
                     </div>
@@ -283,9 +284,9 @@ function LoopingSequenceVideo({ initialPhase = 'hello' }) {
       onEnded={onEnded}
     >
       {phase === 'hello' ? (
-        <source src="/videos/hello_loop.mp4" type="video/mp4" />
+        <source src={import.meta.env.BASE_URL + "videos/hello_loop.mp4"} type="video/mp4" />
       ) : (
-        <source src="/videos/TV STATIC (4K 60FPS).mp4" type="video/mp4" />
+        <source src={import.meta.env.BASE_URL + "videos/TV STATIC (4K 60FPS).mp4"} type="video/mp4" />
       )}
       Your browser does not support the video tag.
     </video>

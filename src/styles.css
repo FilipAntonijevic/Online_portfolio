@@ -144,7 +144,6 @@ img {
   .vending-machine {
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine.png'); 
     background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;
     background-position: center top;
@@ -162,7 +161,6 @@ img {
   .vending-machine-bottom{
     max-width: var(--machine-max-width);
     margin: 0 auto;
-    background-image: url('/images/rest/Vending_machine_bottom.png');
     background-size: 100% calc(var(--design-vh, 1vh) * 100);
     background-repeat: no-repeat;/* prevent tiling */
     background-position: center top;

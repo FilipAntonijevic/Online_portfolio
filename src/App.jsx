@@ -47,26 +47,9 @@ function App() {
     try {
       setLoading(true);
       setError(null);
-      const token = import.meta.env.VITE_GITHUB_TOKEN;
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const results = await Promise.all(
-        INCLUDED_PROJECTS.slice(0, MAX_PROJECTS).map(async (name) => {
-          try {
-            const r = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${name}`, { headers });
-            if (!r.ok) throw new Error(r.status);
-            return await r.json();
-          } catch {
-            return {
-              id: `${GITHUB_USERNAME}/${name}`, name,
-              full_name: `${GITHUB_USERNAME}/${name}`,
-              html_url: `https://github.com/${GITHUB_USERNAME}/${name}`,
-              description: '', updated_at: new Date().toISOString(),
-              owner: { login: GITHUB_USERNAME },
-              stargazers_count: 0, forks_count: 0,
-            };
-          }
-        })
-      );
+      const r = await fetch(`${import.meta.env.BASE_URL}repos.json`);
+      if (!r.ok) throw new Error(r.status);
+      const results = await r.json();
       setRepos(results);
     } catch (err) {
       setError(err.message);
@@ -199,12 +182,12 @@ function App() {
   useEffect(() => {
     if (loading) return;
     const srcs = [
-      '/images/rest/Vending_machine.png',
-      '/images/rest/Vending_machine_bottom.png',
-      '/images/rest/Vending_machine_left2.png',
-      '/images/rest/Vending_machine_right2.png',
-      '/images/rest/Vending_machine_right_bottom.png',
-      '/images/rest/Vending_machine_back.png',
+      `${import.meta.env.BASE_URL}images/rest/Vending_machine.png`,
+      `${import.meta.env.BASE_URL}images/rest/Vending_machine_bottom.png`,
+      `${import.meta.env.BASE_URL}images/rest/Vending_machine_left2.png`,
+      `${import.meta.env.BASE_URL}images/rest/Vending_machine_right2.png`,
+      `${import.meta.env.BASE_URL}images/rest/Vending_machine_right_bottom.png`,
+      `${import.meta.env.BASE_URL}images/rest/Vending_machine_back.png`,
     ];
     let done = 0;
     const onDone = () => { if (++done === srcs.length) setImagesReady(true); };
@@ -442,7 +425,7 @@ function App() {
       case 0:
         return (
           <>
-            <img src="/images/rest/Vending_machine.png" alt="" className="mobile-machine-bg" style={{ zIndex: 9997 }} />
+            <img src={import.meta.env.BASE_URL + "images/rest/Vending_machine.png"} alt="" className="mobile-machine-bg" style={{ zIndex: 9997 }} />
             <div className="desktop-front-scaler" data-scaler="true" style={{
               transformOrigin: 'top left',
               transform:       `scale(${machineScale})`,
@@ -453,7 +436,7 @@ function App() {
               position:        'relative',
               zIndex:          10000,
             }}>
-              <img src="/images/rest/Vending_machine_bottom.png" alt="" className="mobile-machine-bg" style={{ zIndex: 800, pointerEvents: 'none' }} />
+              <img src={import.meta.env.BASE_URL + "images/rest/Vending_machine_bottom.png"} alt="" className="mobile-machine-bg" style={{ zIndex: 800, pointerEvents: 'none' }} />
               <CenterMachine
                 repos={repos} loading={loading} error={error}
                 droppedRepo={droppedRepo} selectedRepo={selectedRepo}
@@ -550,8 +533,8 @@ function WallBackground({ tileW, tileH, offsetLeft, offsetTop }) {
 
       const flipX = ((col % 2) + 2) % 2 === 1;
       const img   = row < 0
-        ? "url('/images/rest/upper_wall.png')"
-        : "url('/images/rest/Wall.png')";
+        ? `url(${import.meta.env.BASE_URL}images/rest/upper_wall.png)`
+        : `url(${import.meta.env.BASE_URL}images/rest/Wall.png)`;
 
       tiles.push(
         <div key={`${row}-${col}`} style={{
