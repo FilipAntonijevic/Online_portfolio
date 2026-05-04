@@ -30,7 +30,14 @@ function App() {
     fetchRepos();
     const handleSelectRepo = (e) => setSelectedRepo(e.detail);
     window.addEventListener('selectRepo', handleSelectRepo);
-    return () => window.removeEventListener('selectRepo', handleSelectRepo);
+    const blockDrag = (e) => {
+      if (e.composedPath().some(el => el.tagName === 'IMG')) e.preventDefault();
+    };
+    window.addEventListener('dragstart', blockDrag);
+    return () => {
+      window.removeEventListener('selectRepo', handleSelectRepo);
+      window.removeEventListener('dragstart', blockDrag);
+    };
   }, []);
 
   async function fetchRepos() {
@@ -75,7 +82,10 @@ function App() {
       Math.round(2000 + 6000 * (len / 200)));
   };
   const handleChuteClick  = () => {
-    if (droppedRepo) window.open(droppedRepo.html_url, '_blank', 'noopener,noreferrer');
+    if (droppedRepo) {
+      window.open(droppedRepo.html_url, '_blank', 'noopener,noreferrer');
+      setDroppedRepo(null);
+    }
   };
   const handleVideoClose  = () => { setSelectedRepo(null); setShowDescription(false); };
 
@@ -127,6 +137,9 @@ function App() {
 
   // Keyboard refs
   const keyIntervalRef = useRef(null);
+
+  // Input mutex — only one input mode active at a time ('mouse' | 'key' | 'scroll' | null)
+  const activeInputRef = useRef(null);
 
   function applyAngle(ang) {
     const W    = containerWRef.current;
@@ -242,7 +255,9 @@ function App() {
     function onKeyDown(e) {
       if (introRef.current) return;
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      if (keyIntervalRef.current) return; // already running
+      if (keyIntervalRef.current) return;
+      if (activeInputRef.current && activeInputRef.current !== 'key') return;
+      activeInputRef.current = 'key';
       const dir  = e.key === 'ArrowRight' ? 1 : -1;
       const step = () => applyAngle(visualAngleRef.current + dir * 2);
       step();
@@ -252,6 +267,7 @@ function App() {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         clearInterval(keyIntervalRef.current);
         keyIntervalRef.current = null;
+        if (activeInputRef.current === 'key') activeInputRef.current = null;
       }
     }
     window.addEventListener('keydown', onKeyDown);
@@ -272,14 +288,21 @@ function App() {
     if (loading) return;
     const el = areaRef.current;
     if (!el) return;
+    const CLICKABLE = 'a, button, input, select, textarea, [role="button"], [tabindex], label';
     function onMouseDown(e) {
       if (introRef.current) return;
+      if (activeInputRef.current && activeInputRef.current !== 'mouse') return;
+      // Don't start drag if pressing on something interactive
+      if (e.target.closest(CLICKABLE)) return;
+      activeInputRef.current  = 'mouse';
       mouseDragActive.current = true;
       mousePrevXRef.current   = e.clientX;
       el.style.cursor = 'grabbing';
     }
     function onMouseMove(e) {
       if (!mouseDragActive.current) return;
+      // If button was released outside window, e.buttons will be 0
+      if (e.buttons === 0) { onMouseUp(); return; }
       const delta = mousePrevXRef.current - e.clientX;
       mousePrevXRef.current = e.clientX;
       applyAngle(visualAngleRef.current + delta * (90 / containerWRef.current));
@@ -287,6 +310,7 @@ function App() {
     function onMouseUp() {
       mouseDragActive.current = false;
       el.style.cursor = '';
+      if (activeInputRef.current === 'mouse') activeInputRef.current = null;
     }
     el.addEventListener('mousedown', onMouseDown);
     window.addEventListener('mousemove', onMouseMove);
@@ -305,8 +329,14 @@ function App() {
     if (!el) return;
     function onWheel(e) {
       if (introRef.current) return;
+      if (activeInputRef.current && activeInputRef.current !== 'scroll') return;
       e.preventDefault();
+      activeInputRef.current = 'scroll';
       applyAngle(visualAngleRef.current + e.deltaY * 0.07);
+      clearTimeout(onWheel._t);
+      onWheel._t = setTimeout(() => {
+        if (activeInputRef.current === 'scroll') activeInputRef.current = null;
+      }, 150);
     }
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
@@ -327,7 +357,7 @@ function App() {
               '--design-vh':   `${MACHINE_NATURAL_H / 100}px`,
               '--design-vw':   `${MACHINE_DESIGN_VW}px`,
               position:        'relative',
-              zIndex:          2,
+              zIndex:          10000,
             }}>
               <CenterMachine
                 repos={repos} loading={loading} error={error}
@@ -350,7 +380,10 @@ function App() {
   if (loading) return <LoadingScreen />;
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#131313' }}>
+    <div
+      style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#131313' }}
+      onDragStart={e => e.preventDefault()}
+    >
       <div style={{
         position: 'absolute', inset: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
