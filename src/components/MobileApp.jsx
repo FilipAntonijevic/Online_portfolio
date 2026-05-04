@@ -81,7 +81,10 @@ function MobileApp() {
   };
 
   const handleChuteClick = () => {
-    if (droppedRepo) window.open(droppedRepo.html_url, '_blank', 'noopener,noreferrer');
+    if (droppedRepo) {
+      window.open(droppedRepo.html_url, '_blank', 'noopener,noreferrer');
+      setDroppedRepo(null);
+    }
   };
 
   const handleVideoClose = () => { setSelectedRepo(null); setShowDescription(false); };
@@ -357,6 +360,17 @@ function MobileApp() {
         return (
           <>
             <img src="/images/rest/Vending_machine.png" alt="" className="mobile-machine-bg" />
+            <div
+              data-clone-layer="true"
+              style={{
+                position: 'absolute', top: 0, left: 0,
+                width: MACHINE_NATURAL_W, height: MACHINE_NATURAL_H,
+                transformOrigin: 'top left',
+                transform: `scale(${machineScale})`,
+                zIndex: 9998,
+                pointerEvents: 'none',
+              }}
+            />
             <img src="/images/rest/Vending_machine_bottom.png" alt="" className="mobile-machine-bg" style={{ zIndex: 9999 }} />
             <div className="mobile-front-scaler" data-scaler="true" style={{
               transformOrigin: 'top left',
@@ -366,7 +380,7 @@ function MobileApp() {
               '--design-vh':   `${MACHINE_NATURAL_H / 100}px`,
               '--design-vw':   `${MACHINE_DESIGN_VW}px`,
               position:        'relative',
-              zIndex:          2,
+              zIndex:          10000,
             }}>
               <CenterMachine
                 repos={repos} loading={loading} error={error}
