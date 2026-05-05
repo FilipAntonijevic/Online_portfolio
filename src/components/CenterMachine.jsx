@@ -238,7 +238,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                   ) : (
                     postSequenceActive ? <LoopingSequenceVideo initialPhase="static" /> : <LoopingSequenceVideo />
                   )}
-                  <div className="scanline-mask" aria-hidden="true"></div>
+                  <div className={`scanline-mask${showDescription ? ' scanline-mask--hidden' : ''}`} aria-hidden="true"></div>
                 </div>
               </div>
       </div>

@@ -296,6 +296,7 @@ img {
     will-change: opacity, background-position;
     opacity: 0.95;
     filter: contrast(1.05) saturate(0.98);
+    transition: opacity 0.3s ease;
   }
 
   /* subtle flicker to mimic CRT, disabled for reduced-motion */
@@ -307,6 +308,12 @@ img {
   }
 
   .scanline-mask { animation: scanlineFlicker 0.25s infinite; }
+
+  .scanline-mask--hidden {
+    opacity: 0 !important;
+    animation: none !important;
+    transition: opacity 0.3s ease;
+  }
 
   .screen-placeholder {
     width: 100%;
