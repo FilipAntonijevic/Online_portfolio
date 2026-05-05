@@ -308,10 +308,6 @@ img {
 
   .scanline-mask { animation: scanlineFlicker 0.25s infinite; }
 
-  @media (prefers-reduced-motion: reduce) {
-    .scanline-mask { animation: none !important; }
-  }
-
   .screen-placeholder {
     width: 100%;
     height: 100%;
@@ -731,16 +727,7 @@ img {
     Accessibility
     =================================== */
 
-  /* Reduced motion for users who prefer it */
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+
 
   /* High contrast mode support */
   @media (prefers-contrast: high) {
@@ -791,6 +778,7 @@ img {
   width: 100%;
   height: 100%;
   overflow: hidden; /* clip CenterMachine to exact 900×1080 natural box */
+  --tile-size: 103px; /* override :root fallback — scaler handles overall sizing */
 }
 .desktop-front-scaler .column {
   background: transparent !important;

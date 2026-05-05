@@ -354,7 +354,9 @@ function MobileApp() {
               height:          MACHINE_NATURAL_H,
               '--design-vh':   `${MACHINE_NATURAL_H / 100}px`,
               '--design-vw':   `${MACHINE_DESIGN_VW}px`,
-              position:        'relative',
+              position:        'absolute',
+              top:             0,
+              left:            0,
               zIndex:          10000,
             }}>
               <img src={import.meta.env.BASE_URL + "images/rest/Vending_machine_bottom.png"} alt="" className="mobile-machine-bg" style={{ zIndex: 800, pointerEvents: 'none' }} />
