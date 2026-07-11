@@ -98,6 +98,7 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
   // Per-image scale overrides 
   // Use keys that exactly match `repo.name` values used below
   const imgScales = {
+    Honey_Cosmetics: 1.2,
     Tavern_Tower: 1.2,
     hand_draw_simulator: 1.2,
     'Grafika-projekat': 1.2, 
@@ -126,7 +127,13 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
         className={`project-tile ${imageRepos.has(repo.name) ? 'project-tile-image' : ''}`}
         style={mergedDivStyle}
       >
-        {repo.name === 'Grafika-projekat' ? (
+        {repo.name === 'Honey_Cosmetics' ? (
+          <img 
+            src={import.meta.env.BASE_URL + "images/project_images/Honey_Cosmetics.png"} 
+            alt={repo.name}
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
+          />
+        ) : repo.name === 'Grafika-projekat' ? (
           <img 
             src={import.meta.env.BASE_URL + "images/project_images/Mammoth_island.png"} 
             alt={repo.name}
@@ -204,7 +211,13 @@ const ProjectTile = forwardRef(function ProjectTile({ repo, onDrop, onSelect, st
                 : `rotate ${CLONE_TILT_DURATION}ms ease`,
             }}
           >
-            {repo.name === 'Grafika-projekat' ? (
+            {repo.name === 'Honey_Cosmetics' ? (
+              <img 
+                src={import.meta.env.BASE_URL + "images/project_images/Honey_Cosmetics.png"} 
+                alt={repo.name}
+                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', transform: `translateX(-50%) scale(${getScale(repo.name)})`, transformOrigin: 'bottom center', position: 'absolute', left: '50%', bottom: '6px' }}
+              />
+            ) : repo.name === 'Grafika-projekat' ? (
               <img 
                 src={import.meta.env.BASE_URL + "images/project_images/Mammoth_island.png"} 
                 alt={repo.name}

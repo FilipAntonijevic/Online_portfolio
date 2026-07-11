@@ -19,6 +19,7 @@ loadEnv();
 
 const GITHUB_USERNAME   = 'FilipAntonijevic';
 const INCLUDED_PROJECTS = [
+  'Honey_Cosmetics',
   'Tavern_Tower', 'Mastermind_best_starting_move_proof', 'TicTacToe',
   'Optimal_block_packing', 'score_sheet', 'hand_draw_simulator', 'Grafika-projekat',
 ];

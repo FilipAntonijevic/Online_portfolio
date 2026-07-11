@@ -1,5 +1,6 @@
 // Singleton lista projekata koji koriste slike
 export const includedProjects = [
+  "Honey_Cosmetics",
   "Tavern_Tower",
   "Mastermind_best_starting_move_proof",
   "TicTacToe",

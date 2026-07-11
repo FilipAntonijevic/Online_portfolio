@@ -10,7 +10,7 @@ import '../mobile.css';
 
 const GITHUB_USERNAME   = 'FilipAntonijevic';
 const MAX_PROJECTS      = 16;
-const INCLUDED_PROJECTS = ['Tavern_Tower', 'Mastermind_best_starting_move_proof', 'TicTacToe',
+const INCLUDED_PROJECTS = ['Honey_Cosmetics', 'Tavern_Tower', 'Mastermind_best_starting_move_proof', 'TicTacToe',
   'Optimal_block_packing', 'score_sheet', 'hand_draw_simulator', 'Grafika-projekat'];
 const Daytime = 0;
 
@@ -69,7 +69,11 @@ function MobileApp() {
 
   const handleChuteClick = () => {
     if (droppedRepo) {
-      window.open(droppedRepo.html_url, '_blank', 'noopener,noreferrer');
+      const url =
+        droppedRepo.name === 'Honey_Cosmetics'
+          ? 'https://honey-cosmetic.com/'
+          : droppedRepo.html_url;
+      window.open(url, '_blank', 'noopener,noreferrer');
       setDroppedRepo(null);
     }
   };
