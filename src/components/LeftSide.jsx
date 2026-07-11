@@ -5,7 +5,7 @@ function LeftSide({ onSwipeToFront }) {
   return (
     <>
       <img
-        src={import.meta.env.BASE_URL + "images/rest/Vending_machine_left2.png"}
+        src={import.meta.env.BASE_URL + "images_webp/rest/Vending_machine_left2.webp"}
         alt=""
         className="mobile-machine-bg"
       />
@@ -18,7 +18,7 @@ function LeftSide({ onSwipeToFront }) {
         }}
       >
       <img
-        src={import.meta.env.BASE_URL + "images/rest/Poster.png"}
+        src={import.meta.env.BASE_URL + "images_webp/rest/Poster.webp"}
         alt=""
         style={{
           position: 'absolute',

@@ -56,7 +56,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
 
   return (
     <main className="column center-column">
-      <div className="vending-machine" style={{position: 'relative', backgroundImage: `url(${import.meta.env.BASE_URL}images/rest/Vending_machine.png)`}}>
+      <div className="vending-machine" style={{position: 'relative', backgroundImage: `url(${import.meta.env.BASE_URL}images_webp/rest/Vending_machine.webp)`}}>
         <div className="vending-machine-bottom" 
               style={{position: 'absolute', 
               left: 0, 
@@ -66,7 +66,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
               zIndex: 9999, 
               pointerEvents: 'none', 
               userSelect: 'none',
-              backgroundImage: `url(${import.meta.env.BASE_URL}images/rest/Vending_machine_bottom.png)`}} />
+              backgroundImage: `url(${import.meta.env.BASE_URL}images_webp/rest/Vending_machine_bottom.webp)`}} />
           
         <div className="snack-box">
 

@@ -7,7 +7,7 @@ function RightSide({ onSwipeToFront }) {
   return (
     <>
         <img
-            src={import.meta.env.BASE_URL + "images/rest/Vending_machine_right2.png"}
+            src={import.meta.env.BASE_URL + "images_webp/rest/Vending_machine_right2.webp"}
             alt=""
             className="mobile-machine-bg"
         />
@@ -32,7 +32,7 @@ function RightSide({ onSwipeToFront }) {
             }}
         >
             <img
-            src={import.meta.env.BASE_URL + "images/rest/Github_graffiti.png"}
+            src={import.meta.env.BASE_URL + "images_webp/rest/Github_graffiti.webp"}
             alt=""
             style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
             />
@@ -53,7 +53,7 @@ function RightSide({ onSwipeToFront }) {
             }}
         >
             <img
-            src={import.meta.env.BASE_URL + "images/rest/Linkedin_graffiti.png"}
+            src={import.meta.env.BASE_URL + "images_webp/rest/Linkedin_graffiti.webp"}
             alt=""
             style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
             />
@@ -66,7 +66,7 @@ function RightSide({ onSwipeToFront }) {
             style={{ position: 'absolute', left: '-2%', top: '35%', width: '47%', zIndex: 20 }}
         >
             <img
-                src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
+                src={import.meta.env.BASE_URL + "images_webp/rest/CV_graffiti.webp"}
                 alt="CV"
                 style={{
                 width: '100%',
@@ -89,7 +89,7 @@ function RightSide({ onSwipeToFront }) {
                 }}
             >
                 <img
-                src={import.meta.env.BASE_URL + "images/rest/Mail.png"}
+                src={import.meta.env.BASE_URL + "images_webp/rest/Mail.webp"}
                 alt=""
                 style={{ width: '100%', height: 'auto', display: 'block', pointerEvents: 'none' }}
                 />
@@ -97,7 +97,7 @@ function RightSide({ onSwipeToFront }) {
 
 
             <img
-            src={import.meta.env.BASE_URL + "images/rest/Vending_machine_right_bottom.png"}
+            src={import.meta.env.BASE_URL + "images_webp/rest/Vending_machine_right_bottom.webp"}
             alt=""
             style={{
             position: 'absolute',

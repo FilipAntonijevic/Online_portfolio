@@ -16,7 +16,7 @@ function LeftColumn() {
       }}
     >
       <img
-        src={import.meta.env.BASE_URL + "images/rest/Poster.png"}
+        src={import.meta.env.BASE_URL + "images_webp/rest/Poster.webp"}
         alt=""
           style={{
             width: '58%',
@@ -28,7 +28,7 @@ function LeftColumn() {
 
       <a href="https://github.com/FilipAntonijevic" target="_blank" rel="noopener noreferrer" style={{ position: 'absolute', right: '-10%', top: '25%', width: '25%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block', transform: 'translateY(-50%) rotate(4deg)' }}>
         <img
-          src={import.meta.env.BASE_URL + "images/rest/Github_graffiti.png"}
+          src={import.meta.env.BASE_URL + "images_webp/rest/Github_graffiti.webp"}
           alt=""
           style={{
             width: '100%',
@@ -41,7 +41,7 @@ function LeftColumn() {
 
       <a href="mailto:filipdantonijevic@gmail.com" style={{ position: 'absolute', right: '68%', top: '85%', width: '20%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block', transform: 'translateY(-50%) rotate(8deg)' }}>
         <img
-          src={import.meta.env.BASE_URL + "images/rest/Mail.png"}
+          src={import.meta.env.BASE_URL + "images_webp/rest/Mail.webp"}
           alt=""
           style={{
             width: '100%',
@@ -55,7 +55,7 @@ function LeftColumn() {
       <a href="https://www.linkedin.com/in/filip-antonijevic-bbb3923a6/" target="_blank" rel="noopener noreferrer" 
       style={{ position: 'absolute', right: '10%', top: '67%', width: '14%', height: 'auto', zIndex: 20, pointerEvents: 'auto', display: 'block' }}>
         <img
-          src={import.meta.env.BASE_URL + "images/rest/Linkedin_graffiti.png"}
+          src={import.meta.env.BASE_URL + "images_webp/rest/Linkedin_graffiti.webp"}
           alt=""
           style={{
             width: '100%',
@@ -80,7 +80,7 @@ function LeftColumn() {
         }}
       >
         <img
-          src={import.meta.env.BASE_URL + "images/rest/CV_graffiti.png"}
+          src={import.meta.env.BASE_URL + "images_webp/rest/CV_graffiti.webp"}
           alt="CV"
           style={{
             width: '100%',

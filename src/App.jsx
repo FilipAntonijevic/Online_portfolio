@@ -186,12 +186,12 @@ function App() {
   useEffect(() => {
     if (loading) return;
     const srcs = [
-      `${import.meta.env.BASE_URL}images/rest/Vending_machine.png`,
-      `${import.meta.env.BASE_URL}images/rest/Vending_machine_bottom.png`,
-      `${import.meta.env.BASE_URL}images/rest/Vending_machine_left2.png`,
-      `${import.meta.env.BASE_URL}images/rest/Vending_machine_right2.png`,
-      `${import.meta.env.BASE_URL}images/rest/Vending_machine_right_bottom.png`,
-      `${import.meta.env.BASE_URL}images/rest/Vending_machine_back.png`,
+      `${import.meta.env.BASE_URL}images_webp/rest/Vending_machine.webp`,
+      `${import.meta.env.BASE_URL}images_webp/rest/Vending_machine_bottom.webp`,
+      `${import.meta.env.BASE_URL}images_webp/rest/Vending_machine_left2.webp`,
+      `${import.meta.env.BASE_URL}images_webp/rest/Vending_machine_right2.webp`,
+      `${import.meta.env.BASE_URL}images_webp/rest/Vending_machine_right_bottom.webp`,
+      `${import.meta.env.BASE_URL}images_webp/rest/Vending_machine_back.webp`,
     ];
     let done = 0;
     const onDone = () => { if (++done === srcs.length) setImagesReady(true); };
@@ -426,7 +426,7 @@ function App() {
       case 0:
         return (
           <>
-            <img src={import.meta.env.BASE_URL + "images/rest/Vending_machine.png"} alt="" className="mobile-machine-bg" style={{ zIndex: 9997 }} />
+            <img src={import.meta.env.BASE_URL + "images_webp/rest/Vending_machine.webp"} alt="" className="mobile-machine-bg" style={{ zIndex: 9997 }} />
             <div className="desktop-front-scaler" data-scaler="true" style={{
               transformOrigin: 'top left',
               transform:       `scale(${machineScale})`,
@@ -439,7 +439,7 @@ function App() {
               left:            0,
               zIndex:          10000,
             }}>
-              <img src={import.meta.env.BASE_URL + "images/rest/Vending_machine_bottom.png"} alt="" className="mobile-machine-bg" style={{ zIndex: 800, pointerEvents: 'none' }} />
+              <img src={import.meta.env.BASE_URL + "images_webp/rest/Vending_machine_bottom.webp"} alt="" className="mobile-machine-bg" style={{ zIndex: 800, pointerEvents: 'none' }} />
               <CenterMachine
                 repos={repos} loading={loading} error={error}
                 droppedRepo={droppedRepo} selectedRepo={selectedRepo}
@@ -536,8 +536,8 @@ function WallBackground({ tileW, tileH, offsetLeft, offsetTop }) {
 
       const flipX = ((col % 2) + 2) % 2 === 1;
       const img   = row < 0
-        ? `url(${import.meta.env.BASE_URL}images/rest/upper_wall.png)`
-        : `url(${import.meta.env.BASE_URL}images/rest/Wall.png)`;
+        ? `url(${import.meta.env.BASE_URL}images_webp/rest/upper_wall.webp)`
+        : `url(${import.meta.env.BASE_URL}images_webp/rest/Wall.webp)`;
 
       tiles.push(
         <div key={`${row}-${col}`} style={{

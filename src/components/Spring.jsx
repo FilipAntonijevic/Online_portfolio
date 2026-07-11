@@ -53,7 +53,7 @@ const Spring = forwardRef(function Spring({ repo, onSelect, style, scale = 0.8, 
   }), [rotation]);
 
   const imgTransform = `translate(-50%, -50%) scale(${scale}) rotate(${currentRotation}deg)`;
-  const imgSrc = image || `${import.meta.env.BASE_URL}images/rest/spring.png`;
+  const imgSrc = image || `${import.meta.env.BASE_URL}images_webp/rest/spring.webp`;
 
   return (
     <>

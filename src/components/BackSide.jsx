@@ -5,14 +5,14 @@ function BackSide() {
   return (
     <div>
         <img
-        src={import.meta.env.BASE_URL + "images/rest/Vending_machine_back.png"}
+        src={import.meta.env.BASE_URL + "images_webp/rest/Vending_machine_back.webp"}
         alt=""
         className="mobile-machine-bg"
         />
 
             {/* Top-left large fan */}
              <img
-              src={import.meta.env.BASE_URL + "images/rest/Vent.png"}
+              src={import.meta.env.BASE_URL + "images_webp/rest/Vent.webp"}
               alt=""
               className="vent-spin"
               style={{
@@ -30,7 +30,7 @@ function BackSide() {
 
 
             <img
-              src={import.meta.env.BASE_URL + "images/rest/Vent_grill.png"}
+              src={import.meta.env.BASE_URL + "images_webp/rest/Vent_grill.webp"}
               alt=""
               style={{
                 position: 'absolute',
@@ -46,7 +46,7 @@ function BackSide() {
 
             {/* Top-right small fan */}
             <img
-              src={import.meta.env.BASE_URL + "images/rest/Vent.png"}
+              src={import.meta.env.BASE_URL + "images_webp/rest/Vent.webp"}
               alt=""
               className="vent-spin"
               style={{
@@ -62,7 +62,7 @@ function BackSide() {
               }}
             />
             <img
-              src={import.meta.env.BASE_URL + "images/rest/Vent_grill.png"}
+              src={import.meta.env.BASE_URL + "images_webp/rest/Vent_grill.webp"}
               alt=""
               style={{
                 position: 'absolute',
@@ -78,7 +78,7 @@ function BackSide() {
 
             {/* Bottom-right large fan */}
             <img
-              src={import.meta.env.BASE_URL + "images/rest/Vent.png"}
+              src={import.meta.env.BASE_URL + "images_webp/rest/Vent.webp"}
               alt=""
               className="vent-spin"
               style={{
@@ -94,7 +94,7 @@ function BackSide() {
               }}
             />
             <img
-              src={import.meta.env.BASE_URL + "images/rest/Vent_grill.png"}
+              src={import.meta.env.BASE_URL + "images_webp/rest/Vent_grill.webp"}
               alt=""
               style={{
                 position: 'absolute',
