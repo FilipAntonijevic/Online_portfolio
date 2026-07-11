@@ -3,7 +3,32 @@ import ProjectTile from './ProjectTile';
 import Spring from './Spring';
 import SnackTile from './SnackTile';
 
-const REPOS_WITH_VIDEO = new Set(['Grafika-projekat', 'Optimal_block_packing', 'Tavern_Tower', 'score_sheet', 'TicTacToe']);
+const PROJECT_VIDEOS = {
+  'Grafika-projekat': {
+    src: 'videos/Mamuti na ostrvu - projekat iz računarske grafike.mp4?v=2',
+    type: 'video/mp4',
+  },
+  'Optimal_block_packing': {
+    src: 'videos/Optimal_block_packing.mkv?v=2',
+    type: 'video/x-matroska',
+  },
+  'Tavern_Tower': {
+    src: 'videos/Tavern_tower.mkv?v=2',
+    type: 'video/x-matroska',
+    playbackRate: 2,
+  },
+  'score_sheet': {
+    src: 'videos/Score_sheet.mp4?v=2',
+    type: 'video/mp4',
+    centered: true,
+  },
+  'TicTacToe': {
+    src: 'videos/TicTacToe.mp4',
+    type: 'video/mp4',
+  },
+};
+
+const REPOS_WITH_VIDEO = new Set(Object.keys(PROJECT_VIDEOS));
 
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose, designHeight, daytime }) {
   const [chutePressed, setChutePressed] = useState(false);
@@ -11,7 +36,14 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
   const dropTargetY = (designHeight ?? window.innerHeight) * 0.9;
   const [postSequenceActive, setPostSequenceActive] = useState(false);
   const [noVideoStaticActive, setNoVideoStaticActive] = useState(false);
+  const [mediaSrc, setMediaSrc] = useState(null);
+  const [holdForVideo, setHoldForVideo] = useState(false);
   const prevShowDescriptionRef = useRef(false);
+  const projectVideoRef = useRef(null);
+  const blobUrlRef = useRef(null);
+  const playWhenReadyRef = useRef(false);
+  const videoConfig = selectedRepo ? PROJECT_VIDEOS[selectedRepo.name] : null;
+  const showOverlay = Boolean(selectedRepo && (showDescription || holdForVideo));
 
   useEffect(() => {
     // reset pressed state when droppedRepo changes so animation can run again
@@ -32,7 +64,113 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
   useEffect(() => {
     setNoVideoStaticActive(false);
     setPostSequenceActive(false);
+    setHoldForVideo(false);
+    playWhenReadyRef.current = false;
   }, [selectedRepo]);
+
+  // Download project video during the loading-bar window so play() is instant afterward
+  useEffect(() => {
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+    setMediaSrc(null);
+
+    if (!selectedRepo) return;
+    const config = PROJECT_VIDEOS[selectedRepo.name];
+    if (!config) return;
+
+    const remoteUrl = import.meta.env.BASE_URL + config.src;
+    const controller = new AbortController();
+
+    fetch(remoteUrl, { signal: controller.signal, mode: 'cors', credentials: 'omit' })
+      .then((res) => {
+        if (!res.ok) throw new Error(`video fetch ${res.status}`);
+        return res.blob();
+      })
+      .then((blob) => {
+        if (controller.signal.aborted) return;
+        const typed =
+          blob.type && blob.type !== 'application/octet-stream'
+            ? blob
+            : new Blob([blob], { type: config.type });
+        const objectUrl = URL.createObjectURL(typed);
+        if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = objectUrl;
+        setMediaSrc(objectUrl);
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        // Network/CORS failure — fall back to direct URL so video can still play
+        console.warn('[video preload]', err);
+        setMediaSrc(remoteUrl);
+      });
+
+    return () => {
+      controller.abort();
+      if (blobUrlRef.current) {
+        URL.revokeObjectURL(blobUrlRef.current);
+        blobUrlRef.current = null;
+      }
+    };
+  }, [selectedRepo?.name]);
+
+  // Pause during description; play as soon as the bar ends and the blob is ready
+  useEffect(() => {
+    const vid = projectVideoRef.current;
+    if (!vid || !videoConfig) return;
+
+    const tryPlay = () => {
+      setHoldForVideo(false);
+      playWhenReadyRef.current = false;
+      if (videoConfig.playbackRate) vid.playbackRate = videoConfig.playbackRate;
+      try {
+        if (vid.currentTime !== 0) vid.currentTime = 0;
+      } catch (_) {}
+      const playPromise = vid.play();
+      if (playPromise && playPromise.catch) playPromise.catch(() => {});
+    };
+
+    if (showDescription) {
+      playWhenReadyRef.current = false;
+      setHoldForVideo(false);
+      vid.pause();
+      try {
+        if (vid.currentTime !== 0) vid.currentTime = 0;
+      } catch (_) {}
+      return;
+    }
+
+    // Loading bar finished
+    if (!mediaSrc) {
+      // Still downloading — keep overlay until the blob arrives
+      playWhenReadyRef.current = true;
+      setHoldForVideo(true);
+      return;
+    }
+
+    if (vid.readyState >= 3) {
+      tryPlay();
+      return;
+    }
+
+    playWhenReadyRef.current = true;
+    setHoldForVideo(true);
+
+    const onReady = () => {
+      if (!playWhenReadyRef.current) return;
+      tryPlay();
+    };
+    vid.addEventListener('canplaythrough', onReady);
+    vid.addEventListener('canplay', onReady);
+    // Blob/object URLs are often ready almost immediately after src is set
+    if (vid.readyState >= 2) onReady();
+
+    return () => {
+      vid.removeEventListener('canplaythrough', onReady);
+      vid.removeEventListener('canplay', onReady);
+    };
+  }, [selectedRepo, showDescription, videoConfig, mediaSrc]);
 
   const handleChuteClick = (e) => {
     setChutePressed(true);
@@ -109,7 +247,13 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                   style={{ zIndex: 10000 }}
                   tabIndex={droppedRepo ? 0 : -1}
                   role={droppedRepo ? 'button' : 'status'}
-                  aria-label={droppedRepo ? `Open ${droppedRepo.name} on GitHub` : 'Drop a project here'}
+                  aria-label={
+                    droppedRepo
+                      ? (droppedRepo.name === 'Honey_Cosmetics'
+                          ? `Open ${droppedRepo.name} website`
+                          : `Open ${droppedRepo.name} on GitHub`)
+                      : 'Drop a project here'
+                  }
                 >
                   <div className="chute-opening"></div>
                 </div>
@@ -119,7 +263,7 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
               {/* Right side: Video preview screen (control area) */}
               <div className="video-screen" style={{ position: 'relative', left: '2px', boxSizing: 'border-box' }}>
                 <div className="screen-frame">
-                  {selectedRepo && showDescription ? (
+                  {showOverlay && (
                     <div className="description-overlay">
                       <p className="description-text">
                         {selectedRepo.description || 'No description available'}
@@ -141,7 +285,66 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                         })()}
                       </div>
                     </div>
-                  ) : noVideoStaticActive ? (
+                  )}
+
+                  {selectedRepo && videoConfig && mediaSrc && (
+                    videoConfig.centered ? (
+                      <div
+                        className="centered-video-container"
+                        style={{
+                          opacity: showOverlay ? 0 : 1,
+                          position: 'absolute',
+                          inset: 0,
+                          pointerEvents: 'none',
+                        }}
+                      >
+                        <video
+                          key={selectedRepo.name}
+                          ref={projectVideoRef}
+                          src={mediaSrc}
+                          muted
+                          playsInline
+                          preload="auto"
+                          controlsList="nodownload nofullscreen noremoteplayback"
+                          disablePictureInPicture
+                          className="centered-video"
+                          onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
+                          onContextMenu={(e) => e.preventDefault()}
+                          onLoadedMetadata={(e) => {
+                            if (videoConfig.playbackRate) e.target.playbackRate = videoConfig.playbackRate;
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <video
+                        key={selectedRepo.name}
+                        ref={projectVideoRef}
+                        src={mediaSrc}
+                        muted
+                        playsInline
+                        preload="auto"
+                        controlsList="nodownload nofullscreen noremoteplayback"
+                        disablePictureInPicture
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          opacity: showOverlay ? 0 : 1,
+                          position: 'absolute',
+                          inset: 0,
+                          pointerEvents: 'none',
+                          imageRendering: videoConfig.playbackRate ? 'high-quality' : undefined,
+                        }}
+                        onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
+                        onContextMenu={(e) => e.preventDefault()}
+                        onLoadedMetadata={(e) => {
+                          if (videoConfig.playbackRate) e.target.playbackRate = videoConfig.playbackRate;
+                        }}
+                      />
+                    )
+                  )}
+
+                  {!showOverlay && !videoConfig && noVideoStaticActive ? (
                     <video
                       key="no-video-static"
                       autoPlay
@@ -156,89 +359,11 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
                       <source src={import.meta.env.BASE_URL + "videos/TV STATIC (4K 60FPS).mp4"} type="video/mp4" />
                       Your browser does not support the video tag.
                     </video>
-                  ) : selectedRepo && selectedRepo.name === 'Grafika-projekat' ? (
-                    <video
-                      key="mamuti-video"
-                      autoPlay
-                      muted
-                      playsInline
-                      controlsList="nodownload nofullscreen noremoteplayback"
-                      disablePictureInPicture
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
-                      onContextMenu={(e) => e.preventDefault()}
-                    >
-                      <source src={import.meta.env.BASE_URL + "videos/Mamuti na ostrvu - projekat iz računarske grafike.mp4?v=2"} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : selectedRepo && selectedRepo.name === 'Optimal_block_packing' ? (
-                    <video
-                      key="optimal-video"
-                      autoPlay
-                      muted
-                      playsInline
-                      controlsList="nodownload nofullscreen noremoteplayback"
-                      disablePictureInPicture
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
-                      onContextMenu={(e) => e.preventDefault()}
-                    >
-                      <source src={import.meta.env.BASE_URL + "videos/Optimal_block_packing.mkv?v=2"} type="video/x-matroska" />
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : selectedRepo && selectedRepo.name === 'Tavern_Tower' ? (
-                    <video
-                      key="tavern-tower-video"
-                      autoPlay
-                      muted
-                      playsInline
-                      preload="auto"
-                      controlsList="nodownload nofullscreen noremoteplayback"
-                      disablePictureInPicture
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', imageRendering: 'high-quality' }}
-                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
-                      onContextMenu={(e) => e.preventDefault()}
-                      onLoadedMetadata={(e) => e.target.playbackRate = 2.0}
-                    >
-                      <source src={import.meta.env.BASE_URL + "videos/Tavern_tower.mkv?v=2"} type="video/x-matroska" />
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : selectedRepo && selectedRepo.name === 'score_sheet' ? (
-                    <div className="centered-video-container">
-                      <video
-                        key="score-sheet-video"
-                        autoPlay
-                        muted
-                        playsInline
-                        controlsList="nodownload nofullscreen noremoteplayback"
-                        disablePictureInPicture
-                        className="centered-video"
-                        onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
-                        onContextMenu={(e) => e.preventDefault()}
-                      >
-                        <source src={import.meta.env.BASE_URL + "videos/Score_sheet.mp4?v=2"} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  ) : selectedRepo && selectedRepo.name === 'TicTacToe' ? (
-                    <video
-                      key="tictactoe-video"
-                      autoPlay
-                      muted
-                      playsInline
-                      controlsList="nodownload nofullscreen noremoteplayback"
-                      disablePictureInPicture
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      onEnded={() => { if (onVideoClose) onVideoClose(); setPostSequenceActive(true); }}
-                      onContextMenu={(e) => e.preventDefault()}
-                    >
-                      <source src={import.meta.env.BASE_URL + "videos/TicTacToe.mp4"} type="video/mp4" />
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : (
+                  ) : !showOverlay && !videoConfig ? (
                     postSequenceActive ? <LoopingSequenceVideo initialPhase="static" /> : <LoopingSequenceVideo />
-                  )}
-                  <div className={`scanline-mask${showDescription ? ' scanline-mask--hidden' : ''}`} aria-hidden="true"></div>
+                  ) : null}
+
+                  <div className={`scanline-mask${showOverlay ? ' scanline-mask--hidden' : ''}`} aria-hidden="true"></div>
                 </div>
               </div>
       </div>
