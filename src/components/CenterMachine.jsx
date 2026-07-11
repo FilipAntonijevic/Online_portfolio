@@ -1,34 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import ProjectTile from './ProjectTile';
 import Spring from './Spring';
 import SnackTile from './SnackTile';
-
-const PROJECT_VIDEOS = {
-  'Grafika-projekat': {
-    src: 'videos/Mamuti na ostrvu - projekat iz računarske grafike.mp4?v=2',
-    type: 'video/mp4',
-  },
-  'Optimal_block_packing': {
-    src: 'videos/Optimal_block_packing.mkv?v=2',
-    type: 'video/x-matroska',
-  },
-  'Tavern_Tower': {
-    src: 'videos/Tavern_tower.mkv?v=2',
-    type: 'video/x-matroska',
-    playbackRate: 2,
-  },
-  'score_sheet': {
-    src: 'videos/Score_sheet.mp4?v=2',
-    type: 'video/mp4',
-    centered: true,
-  },
-  'TicTacToe': {
-    src: 'videos/TicTacToe.mp4',
-    type: 'video/mp4',
-  },
-};
-
-const REPOS_WITH_VIDEO = new Set(Object.keys(PROJECT_VIDEOS));
+import { PROJECT_VIDEOS, REPOS_WITH_VIDEO } from '../projectVideos';
+import { ensureProjectVideo, preloadAllProjectVideos, getCachedProjectVideoUrl } from '../videoCache';
 
 function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onProjectSelect, onChuteClick, selectedRepo, showDescription, onVideoClose, designHeight, daytime }) {
   const [chutePressed, setChutePressed] = useState(false);
@@ -37,13 +12,23 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
   const [postSequenceActive, setPostSequenceActive] = useState(false);
   const [noVideoStaticActive, setNoVideoStaticActive] = useState(false);
   const [mediaSrc, setMediaSrc] = useState(null);
-  const [holdForVideo, setHoldForVideo] = useState(false);
+  const [videoArmed, setVideoArmed] = useState(false);
+  const [descTimerDone, setDescTimerDone] = useState(false);
   const prevShowDescriptionRef = useRef(false);
   const projectVideoRef = useRef(null);
-  const blobUrlRef = useRef(null);
-  const playWhenReadyRef = useRef(false);
+  const armingRef = useRef(0);
   const videoConfig = selectedRepo ? PROJECT_VIDEOS[selectedRepo.name] : null;
-  const showOverlay = Boolean(selectedRepo && (showDescription || holdForVideo));
+
+  // Reveal only when the loading-bar timer is done AND the video is decoded/armed
+  const revealVideo = videoConfig
+    ? Boolean(descTimerDone && videoArmed && mediaSrc)
+    : !showDescription;
+  const showOverlay = Boolean(selectedRepo && (videoConfig ? !revealVideo : showDescription));
+
+  // Start downloading every project video as soon as the machine mounts (during intro)
+  useEffect(() => {
+    preloadAllProjectVideos();
+  }, []);
 
   useEffect(() => {
     // reset pressed state when droppedRepo changes so animation can run again
@@ -60,117 +45,117 @@ function CenterMachine({ repos, loading, error, droppedRepo, onProjectDrop, onPr
     }
   }, [showDescription, selectedRepo]);
 
-  // Reset per-repo state when a new project is selected
+  // Reset per-repo playback state
   useEffect(() => {
     setNoVideoStaticActive(false);
     setPostSequenceActive(false);
-    setHoldForVideo(false);
-    playWhenReadyRef.current = false;
-  }, [selectedRepo]);
+    setVideoArmed(false);
+    setDescTimerDone(false);
+    armingRef.current += 1;
 
-  // Download project video during the loading-bar window so play() is instant afterward
-  useEffect(() => {
-    if (blobUrlRef.current) {
-      URL.revokeObjectURL(blobUrlRef.current);
-      blobUrlRef.current = null;
+    if (!selectedRepo || !PROJECT_VIDEOS[selectedRepo.name]) {
+      setMediaSrc(null);
+      return;
     }
-    setMediaSrc(null);
 
-    if (!selectedRepo) return;
-    const config = PROJECT_VIDEOS[selectedRepo.name];
-    if (!config) return;
+    const name = selectedRepo.name;
+    const cached = getCachedProjectVideoUrl(name);
+    if (cached) {
+      setMediaSrc(cached);
+    } else {
+      setMediaSrc(null);
+    }
 
-    const remoteUrl = import.meta.env.BASE_URL + config.src;
-    const controller = new AbortController();
-
-    fetch(remoteUrl, { signal: controller.signal, mode: 'cors', credentials: 'omit' })
-      .then((res) => {
-        if (!res.ok) throw new Error(`video fetch ${res.status}`);
-        return res.blob();
+    let cancelled = false;
+    ensureProjectVideo(name)
+      .then((url) => {
+        if (!cancelled) setMediaSrc(url);
       })
-      .then((blob) => {
-        if (controller.signal.aborted) return;
-        const typed =
-          blob.type && blob.type !== 'application/octet-stream'
-            ? blob
-            : new Blob([blob], { type: config.type });
-        const objectUrl = URL.createObjectURL(typed);
-        if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-        blobUrlRef.current = objectUrl;
-        setMediaSrc(objectUrl);
-      })
-      .catch((err) => {
-        if (controller.signal.aborted) return;
-        // Network/CORS failure — fall back to direct URL so video can still play
-        console.warn('[video preload]', err);
-        setMediaSrc(remoteUrl);
+      .catch(() => {
+        if (!cancelled) {
+          setMediaSrc(import.meta.env.BASE_URL + PROJECT_VIDEOS[name].src);
+        }
       });
 
     return () => {
-      controller.abort();
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current);
-        blobUrlRef.current = null;
-      }
+      cancelled = true;
     };
   }, [selectedRepo?.name]);
 
-  // Pause during description; play as soon as the bar ends and the blob is ready
+  // Parent timer finished (loading bar duration elapsed)
+  useEffect(() => {
+    if (!selectedRepo) {
+      setDescTimerDone(false);
+      return;
+    }
+    if (!showDescription) setDescTimerDone(true);
+    else setDescTimerDone(false);
+  }, [showDescription, selectedRepo]);
+
+  // Attach src early and warm the decoder under the overlay so play() is instant on reveal
   useEffect(() => {
     const vid = projectVideoRef.current;
-    if (!vid || !videoConfig) return;
+    if (!vid || !videoConfig || !mediaSrc) {
+      setVideoArmed(false);
+      return;
+    }
 
-    const tryPlay = () => {
-      setHoldForVideo(false);
-      playWhenReadyRef.current = false;
-      if (videoConfig.playbackRate) vid.playbackRate = videoConfig.playbackRate;
+    const armId = ++armingRef.current;
+    setVideoArmed(false);
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.preload = 'auto';
+    if (videoConfig.playbackRate) vid.playbackRate = videoConfig.playbackRate;
+
+    let cancelled = false;
+    let arming = false;
+
+    const arm = async () => {
+      if (cancelled || arming || armId !== armingRef.current) return;
+      arming = true;
       try {
-        if (vid.currentTime !== 0) vid.currentTime = 0;
-      } catch (_) {}
-      const playPromise = vid.play();
-      if (playPromise && playPromise.catch) playPromise.catch(() => {});
+        // Force decoder init while overlay hides the video
+        await vid.play();
+        if (cancelled || armId !== armingRef.current) return;
+        vid.pause();
+        try {
+          vid.currentTime = 0;
+        } catch (_) {}
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      } catch (_) {
+        // Fall through — mark armed if we at least have frames buffered
+      }
+      if (cancelled || armId !== armingRef.current) return;
+      if (vid.readyState >= 2) setVideoArmed(true);
+      else arming = false; // allow retry on a later readiness event
     };
-
-    if (showDescription) {
-      playWhenReadyRef.current = false;
-      setHoldForVideo(false);
-      vid.pause();
-      try {
-        if (vid.currentTime !== 0) vid.currentTime = 0;
-      } catch (_) {}
-      return;
-    }
-
-    // Loading bar finished
-    if (!mediaSrc) {
-      // Still downloading — keep overlay until the blob arrives
-      playWhenReadyRef.current = true;
-      setHoldForVideo(true);
-      return;
-    }
-
-    if (vid.readyState >= 3) {
-      tryPlay();
-      return;
-    }
-
-    playWhenReadyRef.current = true;
-    setHoldForVideo(true);
 
     const onReady = () => {
-      if (!playWhenReadyRef.current) return;
-      tryPlay();
+      arm();
     };
-    vid.addEventListener('canplaythrough', onReady);
+
+    vid.addEventListener('loadeddata', onReady);
     vid.addEventListener('canplay', onReady);
-    // Blob/object URLs are often ready almost immediately after src is set
+    vid.addEventListener('canplaythrough', onReady);
     if (vid.readyState >= 2) onReady();
 
     return () => {
-      vid.removeEventListener('canplaythrough', onReady);
+      cancelled = true;
+      vid.removeEventListener('loadeddata', onReady);
       vid.removeEventListener('canplay', onReady);
+      vid.removeEventListener('canplaythrough', onReady);
     };
-  }, [selectedRepo, showDescription, videoConfig, mediaSrc]);
+  }, [mediaSrc, videoConfig, selectedRepo?.name]);
+
+  // Start playback in the same frame the overlay drops (before paint)
+  useLayoutEffect(() => {
+    const vid = projectVideoRef.current;
+    if (!vid || !videoConfig || !revealVideo) return;
+
+    if (videoConfig.playbackRate) vid.playbackRate = videoConfig.playbackRate;
+    const playPromise = vid.play();
+    if (playPromise && playPromise.catch) playPromise.catch(() => {});
+  }, [revealVideo, videoConfig]);
 
   const handleChuteClick = (e) => {
     setChutePressed(true);
